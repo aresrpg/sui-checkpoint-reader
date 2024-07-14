@@ -8,6 +8,9 @@
   <a href="https://discord.gg/aresrpg">
     <img src="https://img.shields.io/discord/265104803531587584.svg?logo=discord&style=for-the-badge" alt="Chat"/>
   </a>
+  <a href="https://www.npmjs.com/package/@aresrpg/sui-checkpoint-reader">
+    <img alt="NPM Version" src="https://img.shields.io/npm/v/%40aresrpg%2Fsui-checkpoint-reader?style=for-the-badge">
+  </a>
 </p>
 <h3 align=center>Process sui checkpoint with ease</h3>
 
