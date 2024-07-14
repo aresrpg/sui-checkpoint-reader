@@ -12,9 +12,7 @@
     <img alt="NPM Version" src="https://img.shields.io/npm/v/%40aresrpg%2Fsui-checkpoint-reader?style=for-the-badge">
   </a>
 </p>
-<h3 align=center>Process sui checkpoint with ease</h3>
-
-# Sui Checkpoint Reader 📊
+<h3 align=center>Process sui checkpoints with ease</h3>
 
 This library allows building custom [Sui indexers](https://docs.sui.io/guides/developer/advanced/custom-indexer?ref=blog.sui.io) in JavaScript. It reads checkpoint files from both remote and local sources and processes them efficiently.
 
