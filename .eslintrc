@@ -1,0 +1,53 @@
+{
+  "extends": [
+    "standard",
+    "prettier"
+  ],
+  "plugins": ["@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "requireConfigFile": false,
+    "sourceType": "module",
+    "ecmaVersion": "latest",
+    "parser": "@typescript-eslint/parser"
+  },
+  "rules": {
+    "camelcase": "off",
+    "no-var": "error",
+    "no-undef": 0,
+    "object-shorthand": "error",
+    "prefer-const": ["error", { "destructuring": "any" }],
+    "prefer-rest-params": "error",
+    "prefer-spread": "error",
+    "prefer-object-spread": "error",
+    "prefer-destructuring": "error",
+    "prefer-numeric-literals": "error",
+    "import/order": ["error", { "newlines-between": "always" }],
+    "node/no-callback-literal": 0,
+    "no-dupe-class-members": 0,
+    "no-labels": 0,
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "class",
+        "format": ["PascalCase"],
+        "leadingUnderscore": "forbid"
+      },
+      {
+        "selector": "variable",
+        "modifiers": ["destructured"],
+        "format": null
+      },
+      {
+        "selector": "parameter",
+        "modifiers": ["destructured"],
+        "format": null
+      },
+      {
+        "selector": "parameter",
+        "leadingUnderscore": "allowSingleOrDouble",
+        "format": ["snake_case", "UPPER_CASE"]
+      }
+  ]
+  }
+}

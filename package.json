@@ -1,0 +1,58 @@
+{
+  "name": "@aresrpg/sui-checkpoint-reader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . && prettier . --check && npm run typecheck",
+    "test": "node --test",
+    "typecheck": "tsc --build",
+    "format": "prettier . --write && eslint . --fix",
+    "postversion": "git push --follow-tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aresrpg/sui-checkpoint-reader.git"
+  },
+  "keywords": [],
+  "author": "sceat",
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@mysten/bcs": "^1.0.2",
+    "chokidar": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.6",
+    "@types/node": "^20.14.10",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-config-standard": "17.1.0",
+    "eslint-plugin-import": "2.29.1",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "6.4.0",
+    "husky": "^4.3.8",
+    "lint-staged": "15.2.7",
+    "prettier": "3.3.2",
+    "typescript": "5.5.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.json": "prettier --write",
+    "*.md": "prettier --write",
+    "*.yml": "prettier --write"
+  }
+}
