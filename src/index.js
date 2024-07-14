@@ -531,7 +531,7 @@ function read_blob(buffer) {
   }
 }
 
-export function mapper(object_source, mappings) {
+function mapper(object_source, mappings) {
   const map_recursive = obj => {
     if (Array.isArray(obj)) {
       return obj.map(map_recursive)
