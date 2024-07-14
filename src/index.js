@@ -260,31 +260,62 @@ const ChangeEpoch = bcs.struct('ChangeEpoch', {
   ),
 })
 
-// TODO
-const GenesisObject = bcs.enum('GenesisObject', {})
-
-// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L191-L193
-const GenesisTransaction = bcs.struct('GenesisTransaction', {
-  objects: bcs.vector(GenesisObject),
-})
-
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/messages_consensus.rs#L28-L35
-const ConsensusCommitPrologue = bcs.enum('ConsensusCommitPrologue', {
+const ConsensusCommitPrologue = bcs.struct('ConsensusCommitPrologue', {
   epoch: bcs.u64(),
   round: bcs.u64(),
   commit_timestamp_ms: CheckpointTimestamp,
 })
 
-// TODO
-const AuthenticatorStateUpdate = bcs.enum('AuthenticatorStateUpdate', {})
+const JwkId = bcs.struct('JwkId', {
+  iss: bcs.string(),
+  kid: bcs.string(),
+})
 
-// TODO
-const EndOfEpochTransactionKind = bcs.enum('EndOfEpochTransactionKind', {})
+const JWK = bcs.struct('JWK', {
+  kty: bcs.string(),
+  e: bcs.string(),
+  n: bcs.string(),
+  alg: bcs.string(),
+})
 
-// TODO
-const RandomnessStateUpdate = bcs.enum('RandomnessStateUpdate', {})
+const ActiveJwk = bcs.struct('ActiveJwk', {
+  jwk_id: JwkId,
+  jwk: JWK,
+  epoch: EpochId,
+})
 
-// TODO
+const AuthenticatorStateUpdate = bcs.enum('AuthenticatorStateUpdate', {
+  epoch: EpochId,
+  round: bcs.u64(),
+  new_active_jwks: bcs.vector(ActiveJwk),
+  authenticator_obj_initial_shared_version: SequenceNumber,
+})
+
+const AuthenticatorStateExpire = bcs.struct('AuthenticatorStateExpire', {
+  min_epoch: EpochId,
+  authenticator_obj_initial_shared_version: SequenceNumber,
+})
+
+const ChainIdentifier = CheckpointDigest
+
+const EndOfEpochTransactionKind = bcs.enum('EndOfEpochTransactionKind', {
+  ChangeEpoch,
+  AuthenticatorStateCreate: null,
+  AuthenticatorStateExpire,
+  RandomnessStateCreate: null,
+  DenyListStateCreate: null,
+  BridgeStateCreate: ChainIdentifier,
+  BridgeCommitteeInit: SequenceNumber,
+})
+
+const RandomnessStateUpdate = bcs.struct('RandomnessStateUpdate', {
+  epoch: EpochId,
+  randomness_round: bcs.u64(),
+  random_bytes: bcs.vector(bcs.u8()),
+  randomness_obj_initial_shared_version: SequenceNumber,
+})
+
 const ConsensusCommitDigest = Digest
 
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/messages_consensus.rs#L38-L47
@@ -296,44 +327,6 @@ const ConsensusCommitPrologueV2 = bcs.struct('ConsensusCommitPrologueV2', {
 })
 
 const ConsensusCommitPrologueV3 = bcs.enum('ConsensusCommitPrologueV3', {})
-
-// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L266-L295
-const TransactionKind = bcs.enum('TransactionKind', {
-  ProgrammableTransaction,
-  ChangeEpoch,
-  Genesis: GenesisTransaction,
-  ConsensusCommitPrologue,
-  AuthenticatorStateUpdate,
-  EndOfEpochTransaction: bcs.vector(EndOfEpochTransactionKind),
-  RandomnessStateUpdate,
-  ConsensusCommitPrologueV2,
-  ConsensusCommitPrologueV3,
-})
-
-// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L1503-L1508
-const TransactionDataV1 = bcs.struct('TransactionDataV1', {
-  kind: TransactionKind,
-  sender: SuiAddress,
-  gas_data: GasData,
-  expiration: TransactionExpiration,
-})
-
-// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L1496-L1500
-const TransactionData = bcs.enum('TransactionData', {
-  V1: TransactionDataV1,
-})
-
-// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L2108-L2114
-const SenderSignedTransaction = bcs.struct('SenderSignedTransaction', {
-  intent_message: IntentMessage(TransactionData),
-  tx_signatures: bcs.vector(GenericSignature),
-})
-
-// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L2105
-const SenderSignedData = bcs.vector(SenderSignedTransaction)
-
-// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L2630
-const Transaction = Envelope('Transaction', SenderSignedData, EmptySignInfo)
 
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/base_types.rs#L169-L181
 const MoveObjectType = bcs.enum('MoveObjectType', {
@@ -386,6 +379,31 @@ const Owner = bcs.enum('Owner', {
     initial_shared_version: SequenceNumber,
   }),
   Immutable: null,
+})
+
+const GenesisObject = bcs.enum('GenesisObject', {
+  RawObject: bcs.struct('RawObject', {
+    data: Data,
+    owner: Owner,
+  }),
+})
+
+// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L191-L193
+const GenesisTransaction = bcs.struct('GenesisTransaction', {
+  objects: bcs.vector(GenesisObject),
+})
+
+// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L266-L295
+const TransactionKind = bcs.enum('TransactionKind', {
+  ProgrammableTransaction,
+  ChangeEpoch,
+  Genesis: GenesisTransaction,
+  ConsensusCommitPrologue,
+  AuthenticatorStateUpdate,
+  EndOfEpochTransaction: bcs.vector(EndOfEpochTransactionKind),
+  RandomnessStateUpdate,
+  ConsensusCommitPrologueV2,
+  ConsensusCommitPrologueV3,
 })
 
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-graphql-rpc/src/types/transaction_block_effects.rs#L78-L83
@@ -501,6 +519,31 @@ const SuiObject = bcs.struct('SuiObject', {
   previous_transaction: TransactionDigest,
   storage_rebate: bcs.u64(),
 })
+
+// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L1503-L1508
+const TransactionDataV1 = bcs.struct('TransactionDataV1', {
+  kind: TransactionKind,
+  sender: SuiAddress,
+  gas_data: GasData,
+  expiration: TransactionExpiration,
+})
+
+// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L1496-L1500
+const TransactionData = bcs.enum('TransactionData', {
+  V1: TransactionDataV1,
+})
+
+// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L2108-L2114
+const SenderSignedTransaction = bcs.struct('SenderSignedTransaction', {
+  intent_message: IntentMessage(TransactionData),
+  tx_signatures: bcs.vector(GenericSignature),
+})
+
+// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L2105
+const SenderSignedData = bcs.vector(SenderSignedTransaction)
+
+// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/transaction.rs#L2630
+const Transaction = Envelope('Transaction', SenderSignedData, EmptySignInfo)
 
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/full_checkpoint_content.rs#L45-L56
 const CheckpointTransaction = bcs.struct('CheckpointTransaction', {

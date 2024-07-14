@@ -31,19 +31,19 @@ npm install @aresrpg/sui-checkpoint-reader
 Here's a basic example of how to use the library:
 
 ```js
-import { read_checkpoints } from '@aresrpg/sui-checkpoint-reader';
+import { read_checkpoints } from '@aresrpg/sui-checkpoint-reader'
 
 async function get_remote_checkpoint(num) {
-  const response = await fetch(`https://checkpoints.testnet.sui.io/${num}.chk`);
-  const buffer = await response.arrayBuffer();
-  return buffer;
+  const response = await fetch(`https://checkpoints.testnet.sui.io/${num}.chk`)
+  const buffer = await response.arrayBuffer()
+  return buffer
 }
 
 async function process_checkpoint(checkpoint, index) {
-  console.log('[indexer] process_checkpoint:', index);
+  console.log('[indexer] process_checkpoint:', index)
 }
 
-const known_types = {};
+const known_types = {}
 
 await read_checkpoints({
   from: 1, // Start processing from checkpoint 1
@@ -54,7 +54,7 @@ await read_checkpoints({
   checkpoints_folder: '', // Local folder for checkpoint files
   cleanup_checkpoints: false, // Clean up processed checkpoint files
   process_checkpoint, // Function to process each checkpoint
-});
+})
 ```
 
 ## ⚙️ How It Works
@@ -80,19 +80,19 @@ In this mode, the reader will rely solely on remote checkpoint files:
 ## Example Usage for Remote-Only Mode
 
 ```js
-import { read_checkpoints } from '@aresrpg/sui-checkpoint-reader';
+import { read_checkpoints } from '@aresrpg/sui-checkpoint-reader'
 
 async function get_remote_checkpoint(num) {
-  const response = await fetch(`https://checkpoints.testnet.sui.io/${num}.chk`);
-  const buffer = await response.arrayBuffer();
-  return buffer;
+  const response = await fetch(`https://checkpoints.testnet.sui.io/${num}.chk`)
+  const buffer = await response.arrayBuffer()
+  return buffer
 }
 
 async function process_checkpoint(checkpoint, index) {
-  console.log('[indexer] process_checkpoint:', index);
+  console.log('[indexer] process_checkpoint:', index)
 }
 
-const known_types = {};
+const known_types = {}
 
 await read_checkpoints({
   from: 1,
@@ -100,7 +100,7 @@ await read_checkpoints({
   concurrent_downloads: 25,
   known_types,
   process_checkpoint,
-});
+})
 ```
 
 ## 🧩 BCS Types
