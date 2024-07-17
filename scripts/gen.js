@@ -23,8 +23,6 @@ program
       package: PACKAGE,
     })
 
-    console.dir(result, { depth: Infinity })
-
     const structs_cache = new Map()
     const types_cache = new Map()
 
