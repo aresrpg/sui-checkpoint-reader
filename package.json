@@ -4,6 +4,9 @@
   "description": "",
   "main": "src/index.js",
   "type": "module",
+  "bin": {
+    "sui-checkpoint-reader": "scripts/gen.js"
+  },
   "scripts": {
     "lint": "eslint . && prettier . --check && npm run typecheck",
     "test": "node --test",
@@ -23,6 +26,7 @@
   },
   "dependencies": {
     "@mysten/bcs": "^1.0.2",
+    "@mysten/sui": "^1.2.1",
     "chokidar": "^3.6.0"
   },
   "devDependencies": {
@@ -30,6 +34,7 @@
     "@types/node": "^20.14.10",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
+    "commander": "^12.1.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-config-standard": "17.1.0",

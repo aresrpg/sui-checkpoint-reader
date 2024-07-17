@@ -1,6 +1,12 @@
 import { setInterval, setTimeout } from 'timers/promises'
 import path from 'path'
-import { existsSync, readFileSync, readdirSync, unlinkSync } from 'fs'
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  unlinkSync,
+  writeFileSync,
+} from 'fs'
 
 import { bcs, toHEX } from '@mysten/bcs'
 import chokidar from 'chokidar'
@@ -655,7 +661,7 @@ function format_objects(objects, known_types) {
     } = Move
 
     if (Other) {
-      const { bcs } = known_types[address]?.[module]?.[name] ?? {}
+      const bcs = known_types[address]?.[module]?.[name] ?? {}
       if (bcs) {
         const parsed_content = parse_content(contents, bcs)
         return {
@@ -680,40 +686,41 @@ function format_objects(objects, known_types) {
 }
 
 function format_events(events, known_types) {
-  return events.map(event => {
-    const { type, package_id, transaction_module, sender, contents } = event
+  return events
+    .map(event => {
+      const { type, package_id, transaction_module, sender, contents } = event
 
-    const has_sub_type = type.type_params?.length
-    const parsed_type = parse_type_param(type.type_params)
-    const event_type = `${type.address}::${type.module}::${type.name}${has_sub_type ? `<${parsed_type}>` : ''}`
-    const base_config = known_types[type.address]?.[type.module]?.[type.name]
-    const { bcs } =
-      (has_sub_type ? base_config?.[parsed_type] : base_config) ?? {}
+      const has_sub_type = type.type_params?.length
+      const parsed_type = parse_type_param(type.type_params)
+      const event_type = `${type.address}::${type.module}::${type.name}${has_sub_type ? `<${parsed_type}>` : ''}`
+      const base_config = known_types[type.address]?.[type.module]?.[type.name]
+      const bcs = has_sub_type ? base_config?.[parsed_type] : base_config
 
-    const base_result = {
-      event_type,
-      package_id,
-      transaction_module,
-      sender,
-    }
+      const base_result = {
+        event_type,
+        package_id,
+        transaction_module,
+        sender,
+      }
 
-    const final_contents = bcs
-      ? Object.fromEntries(
-          Object.entries(bcs.parse(new Uint8Array(contents))).map(
-            ([key, value]) => {
-              // @ts-ignore
-              if (value.bytes) return [key, value.bytes]
-              return [key, value]
-            },
-          ),
-        )
-      : contents
+      const final_contents = bcs
+        ? Object.fromEntries(
+            Object.entries(bcs.parse(new Uint8Array(contents))).map(
+              ([key, value]) => {
+                // @ts-ignore
+                if (value.bytes) return [key, value.bytes]
+                return [key, value]
+              },
+            ),
+          )
+        : contents
 
-    return {
-      ...base_result,
-      contents: final_contents,
-    }
-  })
+      return {
+        ...base_result,
+        contents: final_contents,
+      }
+    })
+    .filter(Boolean)
 }
 
 function parse_type_param(params = []) {
@@ -755,6 +762,7 @@ export async function read_checkpoints({
   },
   concurrent_downloads = 25,
   known_types = {},
+  object_filter = () => true,
   checkpoints_folder = '',
   process_checkpoint = async (data, index) => {
     console.log('[indexer] process_checkpoint:', index)
@@ -797,7 +805,11 @@ export async function read_checkpoints({
           )
         }
         const buffer = readFileSync(file_path)
-        const parsed_checkpoint = read_checkpoint(buffer, known_types)
+        const parsed_checkpoint = read_checkpoint(
+          buffer,
+          known_types,
+          object_filter,
+        )
         known_checkpoints.set(file_number, parsed_checkpoint)
       }
     })
@@ -811,7 +823,11 @@ export async function read_checkpoints({
         const buffer = readFileSync(
           path.join(checkpoints_folder, `${file}.chk`),
         )
-        const parsed_checkpoint = read_checkpoint(buffer, known_types)
+        const parsed_checkpoint = read_checkpoint(
+          buffer,
+          known_types,
+          object_filter,
+        )
         known_checkpoints.set(file, parsed_checkpoint)
       }
     }
@@ -859,7 +875,11 @@ export async function read_checkpoints({
             const buffer = await get_remote_checkpoint(
               current_checkpoint_number,
             )
-            const parsed_checkpoint = read_checkpoint(buffer, known_types)
+            const parsed_checkpoint = read_checkpoint(
+              buffer,
+              known_types,
+              object_filter,
+            )
             known_checkpoints.set(current_checkpoint_number, parsed_checkpoint)
           }),
         )
@@ -871,6 +891,7 @@ export async function read_checkpoints({
       } catch (error) {
         console.error(
           `[remote] Some checkpoints couldn't be downloaded, retrying in 2s`,
+          error,
         )
         await setTimeout(2000)
         sync_settings.catching_up = true
@@ -930,7 +951,7 @@ export async function read_checkpoints({
   })
 }
 
-function read_checkpoint(buffer, known_types) {
+function read_checkpoint(buffer, known_types, object_filter) {
   const { encoding, data } = read_blob(buffer)
   if (encoding !== BLOB_ENCODING_BCS)
     throw new Error(`unsupported encoding ${encoding}`)
@@ -938,7 +959,7 @@ function read_checkpoint(buffer, known_types) {
   const { checkpoint_summary, checkpoint_contents, transactions } =
     CheckpointData.parse(data)
 
-  return {
+  const final_result = {
     checkpoint_summary: {
       ...checkpoint_summary,
       data: mapper(checkpoint_summary.data, {
@@ -961,17 +982,30 @@ function read_checkpoint(buffer, known_types) {
         ObjectOwner: to_address,
         previous_transaction: to_address,
         package_id: to_address,
+        changed_objects: entries_array =>
+          Object.fromEntries(
+            entries_array.map(([key, value]) => [to_address(key), value]),
+          ),
         dependencies: dependencies => dependencies.map(to_address),
       })
 
       return {
         ...mapped,
-        input_objects: format_objects(mapped.input_objects, known_types),
-        output_objects: format_objects(mapped.output_objects, known_types),
+        input_objects: format_objects(mapped.input_objects, known_types).filter(
+          object_filter,
+        ),
+        output_objects: format_objects(
+          mapped.output_objects,
+          known_types,
+        ).filter(object_filter),
         ...(mapped.events?.data?.length && {
           events: format_events(mapped.events.data, known_types),
         }),
       }
     }),
   }
+
+  writeFileSync(`./dump.json`, JSON.stringify(final_result, null, 2))
+
+  return final_result
 }
