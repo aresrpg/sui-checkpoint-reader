@@ -107,62 +107,30 @@ To parse specific objects within the checkpoints, you can provide the BCS defini
 
 ### Generating BCS Types
 
-You can generate the necessary types using the [sui-client-gen](https://github.com/kunalabs-io/sui-client-gen) tool. Follow the instructions in the repository to generate the BCS types. Each generated type must contain a `bcs` property, which resolves to a `@mysten/bcs` type.
+You can generate the necessary types using the built-in generator. Here is an example of how to generate the BCS types for a specific package address:
+
+```bash
+npx @aresrpg/sui-checkpoints-reader gen --package <package_address> --file <output_file> --network <network_name>
+```
+
+> The `network_name` defaults to `testnet` if not provided. Not that you can also generate 0x2 types as needed
 
 ### Example Usage
 
 Here's an example of how you can define and use known BCS types:
 
 ```js
-import { ItemSplitEvent } from '../gen/aresrpg/events/structs.ts';
-import { Item } from '../gen/aresrpg/item/structs.ts';
-import {
-  Kiosk,
-  KioskOwnerCap,
-  ItemListed,
-} from '../gen/_dependencies/onchain/0x2/kiosk/structs.ts';
-[...]
+// npx @aresrpg/sui-checkpoints-reader gen --package 0x68e06aee7966648c7b3258f02d5c7da2cf9b035727d6e9167c90e662f20e0406 --file aresrpg-bcs.js --network testnet
+import { read_checkpoints } from '@aresrpg/sui-checkpoint-reader'
+
+import aresrpg_bcs from './aresrpg-bcs.js'
+
+const ARESRPG =
+  '0x68e06aee7966648c7b3258f02d5c7da2cf9b035727d6e9167c90e662f20e0406'
 
 const known_types = {
-  '0xd21548e4c2223ee16ddd4812b6a14f88d24976492e5653c2ef8b86fc5d678498': {
-    item: {
-      Item,
-    },
-    events: {
-      ItemSplitEvent,
-    },
-  },
-  '0x0000000000000000000000000000000000000000000000000000000000000002': {
-    kiosk: {
-      KioskOwnerCap,
-      Kiosk,
-      ItemListed: {
-        '0xd21548e4c2223ee16ddd4812b6a14f88d24976492e5653c2ef8b86fc5d678498::item::Item':
-          ItemListed,
-      },
-    },
-    dynamic_field: {
-      Field,
-    },
-    dynamic_object_field: {
-      Wrapper,
-    },
-    transfer_policy: {
-      TransferPolicy,
-      TransferPolicyCap,
-    },
-    clock: { Clock },
-    display: {
-      Display,
-    },
-    package: { Publisher, UpgradeCap },
-  },
-  '0x06f6bdd3f2e2e759d8a4b9c252f379f7a05e72dfe4c0b9311cdac27b8eb791b1': {
-    personal_kiosk: {
-      PersonalKioskCap,
-    },
-  },
-};
+  [ARESRPG]: aresrpg_bcs,
+}
 ```
 
 This configuration allows the checkpoint reader to correctly parse and process the objects within the checkpoints.
