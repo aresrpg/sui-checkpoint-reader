@@ -653,12 +653,14 @@ function format_objects(objects, known_types) {
       type: {
         Other,
         // @ts-ignore
-        Other: { address, module, name, type_params } = {},
+        Other: { address, module, name, type_params = [] } = {},
       },
       has_public_transfer,
       contents,
       version,
     } = Move
+
+    const parsed_type_params = parse_type_param(type_params)
 
     if (Other) {
       const bcs = known_types[address]?.[module]?.[name] ?? {}
@@ -672,7 +674,7 @@ function format_objects(objects, known_types) {
           owner,
           previous_transaction,
           ...(type_params?.length && {
-            type_params: `${address}::${module}::${name}<${parse_type_param(type_params)}>`,
+            type_params: `${address}::${module}::${name}<${parsed_type_params}>`,
           }),
           ...(parsed_content && {
             contents: parsed_content,

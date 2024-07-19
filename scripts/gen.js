@@ -44,10 +44,18 @@ program
         .map(([name, type_code]) => `${name}: ${type_code}`)
         .join(',\n    ')
 
-      const typeArgsStr = type_arguments.map((_, i) => `\${T${i}}`).join(', ')
+      const typeArgsStr = type_arguments.map((_, i) => `\${T${i}}`)
+      const phantomArgsStr = typeParameters
+        .filter(param => param.isPhantom)
+        .map((_, i) => `\${T${i}}`)
+
+      const allArgsSet = new Set([...typeArgsStr, ...phantomArgsStr])
+      const allArgsStr = Array.from(allArgsSet).join(', ')
+
       const typeParamsStr = typeParameters.map((_, i) => `T${i}`).join(', ')
+
       if (type_arguments.length || typeParameters.length) {
-        return `(${typeParamsStr}) => bcs.struct(\`${struct_name}<${typeArgsStr}>\`, {
+        return `(${typeParamsStr}) => bcs.struct(\`${struct_name}<${allArgsStr}>\`, {
             ${content}
           })`
       }
