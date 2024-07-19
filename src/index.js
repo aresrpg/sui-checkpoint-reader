@@ -694,7 +694,7 @@ function format_events(events, known_types) {
       const parsed_type = parse_type_param(type.type_params)
       const event_type = `${type.address}::${type.module}::${type.name}${has_sub_type ? `<${parsed_type}>` : ''}`
       const base_config = known_types[type.address]?.[type.module]?.[type.name]
-      const bcs = has_sub_type ? base_config?.[parsed_type] : base_config
+      const bcs = has_sub_type ? base_config?.(parsed_type) : base_config
 
       const base_result = {
         event_type,
