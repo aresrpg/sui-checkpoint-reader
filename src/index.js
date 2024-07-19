@@ -1005,7 +1005,5 @@ function read_checkpoint(buffer, known_types, object_filter) {
     }),
   }
 
-  writeFileSync(`./dump.json`, JSON.stringify(final_result, null, 2))
-
   return final_result
 }
