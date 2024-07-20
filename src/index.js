@@ -323,13 +323,32 @@ const ConsensusCommitDigest = Digest
 
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/messages_consensus.rs#L38-L47
 const ConsensusCommitPrologueV2 = bcs.struct('ConsensusCommitPrologueV2', {
-  epoch: bcs.u64(),
+  epoch: EpochId,
   round: bcs.u64(),
   commit_timestamp_ms: CheckpointTimestamp,
   consensus_commit_digest: ConsensusCommitDigest,
 })
 
-const ConsensusCommitPrologueV3 = bcs.enum('ConsensusCommitPrologueV3', {})
+const ConsensusDeterminedVersionAssignments = bcs.enum(
+  'ConsensusDeterminedVersionAssignments',
+  {
+    CancelledTransactions: bcs.struct('CancelledTransactions', {
+      transactions: bcs.vector(
+        bcs.tuple([TransactionDigest, bcs.tuple([ObjectID, SequenceNumber])]),
+      ),
+    }),
+  },
+)
+
+const ConsensusCommitPrologueV3 = bcs.struct('ConsensusCommitPrologueV3', {
+  epoch: EpochId,
+  round: bcs.u64(),
+  sub_dag_index: bcs.option(bcs.u64()),
+  commit_timestamp_ms: CheckpointTimestamp,
+  consensus_commit_digest: ConsensusCommitDigest,
+  consensus_determined_version_assignments:
+    ConsensusDeterminedVersionAssignments,
+})
 
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/base_types.rs#L169-L181
 const MoveObjectType = bcs.enum('MoveObjectType', {
