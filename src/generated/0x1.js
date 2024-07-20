@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { bcs } from '@mysten/bcs'
 
 const String = bcs.struct('String', {

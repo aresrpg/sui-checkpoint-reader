@@ -1,17 +1,12 @@
 import { setInterval, setTimeout } from 'timers/promises'
 import path from 'path'
-import {
-  existsSync,
-  readFileSync,
-  readdirSync,
-  unlinkSync,
-} from 'fs'
+import { existsSync, readFileSync, readdirSync, unlinkSync } from 'fs'
 
 import { bcs, toHEX } from '@mysten/bcs'
 import chokidar from 'chokidar'
 
-import suiBcs from './generated/sui-bcs.js'
-import standardBcs from './generated/standard-bcs.js'
+import sui_bcs from './generated/0x2.js'
+import standard_bcs from './generated/0x1.js'
 
 const Envelope = (name, data, auth_signature) =>
   bcs.struct(name, {
@@ -807,9 +802,9 @@ export async function read_checkpoints({
 
   Object.assign(known_types, {
     '0x0000000000000000000000000000000000000000000000000000000000000002':
-      suiBcs,
+      sui_bcs,
     '0x0000000000000000000000000000000000000000000000000000000000000001':
-      standardBcs,
+      standard_bcs,
   })
 
   // if the lowest known checkpoint is higher than the start checkpoint, we don't need to catch up

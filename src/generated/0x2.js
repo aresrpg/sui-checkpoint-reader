@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { bcs, fromHEX, toHEX } from '@mysten/bcs'
 
 const Address = bcs.bytes(32).transform({

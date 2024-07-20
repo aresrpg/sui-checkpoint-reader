@@ -107,10 +107,10 @@ To parse specific objects within the checkpoints, you can provide the BCS defini
 
 ### Generating BCS Types
 
-You can generate the necessary types using the built-in generator. Here is an example of how to generate the BCS types for a specific package address:
+You can generate the necessary types using the https://github.com/Sceat/sui-bcs. Here is an example of how to generate them:
 
 ```bash
-npx @aresrpg/sui-checkpoint-reader gen --package <package_address> --file <output_file> --network <network_name>
+npx sui-bcs gen --package <package_address> --file <output_file> --network <network_name>
 ```
 
 > The `network_name` defaults to `testnet` if not provided. Not that you can also generate 0x2 types as needed
@@ -120,7 +120,7 @@ npx @aresrpg/sui-checkpoint-reader gen --package <package_address> --file <outpu
 Here's an example of how you can define and use known BCS types:
 
 ```js
-// npx @aresrpg/sui-checkpoint-reader gen --package 0x68e06aee7966648c7b3258f02d5c7da2cf9b035727d6e9167c90e662f20e0406 --file aresrpg-bcs.js --network testnet
+// npx sui-bcs gen --package 0x68e06aee7966648c7b3258f02d5c7da2cf9b035727d6e9167c90e662f20e0406 --file aresrpg-bcs.js --network testnet
 import { read_checkpoints } from '@aresrpg/sui-checkpoint-reader'
 
 import aresrpg_bcs from './aresrpg-bcs.js'
@@ -134,6 +134,8 @@ const known_types = {
 ```
 
 This configuration allows the checkpoint reader to correctly parse and process the objects within the checkpoints.
+
+> Note that 0x1 & 0x2 are built in
 
 ## 📖 API Reference
 
