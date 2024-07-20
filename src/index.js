@@ -5,11 +5,13 @@ import {
   readFileSync,
   readdirSync,
   unlinkSync,
-  writeFileSync,
 } from 'fs'
 
 import { bcs, toHEX } from '@mysten/bcs'
 import chokidar from 'chokidar'
+
+import suiBcs from './generated/sui-bcs.js'
+import standardBcs from './generated/standard-bcs.js'
 
 const Envelope = (name, data, auth_signature) =>
   bcs.struct(name, {
@@ -599,22 +601,43 @@ function mapper(object_source, mappings) {
 
 const to_address = bytes => `0x${toHEX(bytes)}`
 
-function parse_content(contents, bcs) {
-  if (!contents || !bcs.parse) return
-  const {
-    id: {
-      id: { bytes },
+function parse_content(struct, { contents, known_types }) {
+  if (!contents) return
+
+  function find_nested_bcs({ address, module, name, type_params = [], $kind }) {
+    const current_bcs = known_types[address]?.[module]?.[name]
+
+    if (type_params.length) {
+      const nested_bcs = type_params.map(({ Struct, ...rest }) => {
+        if (!Struct) return find_nested_bcs(rest)
+        return find_nested_bcs(Struct)
+      })
+
+      return current_bcs(...nested_bcs)
+    }
+
+    if ($kind && $kind !== 'Struct') return bcs[$kind.toLowerCase()]()
+    return current_bcs
+  }
+
+  const found_bcs = find_nested_bcs(struct)
+
+  if (!found_bcs) return
+
+  const parsed = found_bcs.parse(new Uint8Array(contents))
+
+  const { id: { id: { bytes = undefined } = {} } = {}, ...rest } = mapper(
+    parsed,
+    {
+      bytes: b => {
+        if (Array.isArray(b)) return Buffer.from(b).toString('utf8')
+        return b
+      },
     },
-    ...rest
-  } = mapper(bcs.parse(new Uint8Array(contents)), {
-    bytes: b => {
-      if (Array.isArray(b)) return Buffer.from(b).toString('utf8')
-      return b
-    },
-  })
+  )
 
   return {
-    id: `0x${bytes}`,
+    ...(bytes && { id: `0x${bytes}` }),
     ...Object.fromEntries(
       Object.entries(rest).map(([key, value]) => {
         // @ts-ignore
@@ -663,23 +686,21 @@ function format_objects(objects, known_types) {
     const parsed_type_params = parse_type_param(type_params)
 
     if (Other) {
-      const bcs = known_types[address]?.[module]?.[name] ?? {}
-      if (bcs) {
-        const parsed_content = parse_content(contents, bcs)
-        return {
-          has_public_transfer,
-          type: `${address}::${module}::${name}`,
-          version,
-          storage_rebate,
-          owner,
-          previous_transaction,
-          ...(type_params?.length && {
-            type_params: `${address}::${module}::${name}<${parsed_type_params}>`,
-          }),
-          ...(parsed_content && {
-            contents: parsed_content,
-          }),
-        }
+      const parsed_content = parse_content(Other, {
+        contents,
+        known_types,
+      })
+      return {
+        has_public_transfer,
+        type: `${address}::${module}::${name}`,
+        version,
+        storage_rebate,
+        owner,
+        previous_transaction,
+        ...(type_params?.length && {
+          type_params: `${address}::${module}::${name}<${parsed_type_params}>`,
+        }),
+        contents: parsed_content ?? contents,
       }
     }
 
@@ -784,6 +805,13 @@ export async function read_checkpoints({
   const existing_files = get_existing_checkpoints_files(checkpoints_folder)
   const [lowest_known_checkpoint] = existing_files
 
+  Object.assign(known_types, {
+    '0x0000000000000000000000000000000000000000000000000000000000000002':
+      suiBcs,
+    '0x0000000000000000000000000000000000000000000000000000000000000001':
+      standardBcs,
+  })
+
   // if the lowest known checkpoint is higher than the start checkpoint, we don't need to catch up
   if (lowest_known_checkpoint != null && lowest_known_checkpoint <= from)
     sync_settings.catching_up = false
@@ -836,14 +864,6 @@ export async function read_checkpoints({
   }
 
   async function start_downloading_checkpoints() {
-    console.log('[system] starting to download checkpoints', {
-      from,
-      to:
-        lowest_known_checkpoint == null
-          ? to
-          : Math.min(to, lowest_known_checkpoint),
-    })
-
     // we will download checkpoints until we reach the lowest known checkpoint or the target checkpoint
     const should_keep_downloading = current => {
       if (!sync_settings.catching_up) return false
@@ -851,6 +871,16 @@ export async function read_checkpoints({
         return current <= lowest_known_checkpoint
       return current <= to
     }
+
+    if (should_keep_downloading(sync_settings.current_checkpoint))
+      console.log('[system] starting to download checkpoints', {
+        from,
+        to:
+          lowest_known_checkpoint == null
+            ? to
+            : Math.min(to, lowest_known_checkpoint),
+      })
+    else start_listening_for_local_checkpoints()
 
     while (should_keep_downloading(sync_settings.current_checkpoint)) {
       console.log(
