@@ -602,12 +602,15 @@ function parse_content(struct, { contents, known_types }) {
   function find_nested_bcs({ address, module, name, type_params = [], $kind }) {
     const current_bcs = known_types[address]?.[module]?.[name]
 
+    if (!current_bcs) return
+
     if (type_params.length) {
       const nested_bcs = type_params.map(({ Struct, ...rest }) => {
         if (!Struct) return find_nested_bcs(rest)
         return find_nested_bcs(Struct)
       })
 
+      if (nested_bcs.some(b => !b)) return
       return current_bcs(...nested_bcs)
     }
 
@@ -862,7 +865,7 @@ export async function read_checkpoints({
     // we will download checkpoints until we reach the lowest known checkpoint or the target checkpoint
     const should_keep_downloading = current => {
       if (!sync_settings.catching_up) return false
-      if (lowest_known_checkpoint != null)
+      if (lowest_known_checkpoint != null && lowest_known_checkpoint <= to)
         return current <= lowest_known_checkpoint
       return current <= to
     }
