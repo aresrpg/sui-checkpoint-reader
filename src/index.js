@@ -428,10 +428,108 @@ const TransactionKind = bcs.enum('TransactionKind', {
   ConsensusCommitPrologueV3,
 })
 
+const ModuleId = bcs.struct('ModuleId', {
+  address: AccountAddress,
+  name: Identifier,
+})
+
+const MoveLocation = bcs.struct('MoveLocation', {
+  module: ModuleId,
+  function: bcs.u16(),
+  instruction: bcs.u16(),
+  function_name: bcs.option(bcs.string()),
+})
+
+const MoveLocationOpt = bcs.option(MoveLocation)
+
+const ExecutionFailureStatus = bcs.enum('ExecutionFailureStatus', {
+  InsufficientGas: null,
+  InvalidGasObject: null,
+  InvariantViolation: null,
+  FeatureNotYetSupported: null,
+  MoveObjectTooBig: bcs.struct('MoveObjectTooBig', {
+    object_size: bcs.u64(),
+    max_object_size: bcs.u64(),
+  }),
+  MovePackageTooBig: bcs.struct('MovePackageTooBig', {
+    object_size: bcs.u64(),
+    max_object_size: bcs.u64(),
+  }),
+  CircularObjectOwnership: bcs.struct('CircularObjectOwnership', {
+    object: ObjectID,
+  }),
+  InsufficientCoinBalance: null,
+  CoinBalanceOverflow: null,
+  PublishErrorNonZeroAddress: null,
+  SuiMoveVerificationError: null,
+  MovePrimitiveRuntimeError: MoveLocationOpt,
+  MoveAbort: bcs.tuple([MoveLocation, bcs.u64()]),
+  VMVerificationOrDeserializationError: null,
+  VMInvariantViolation: null,
+  FunctionNotFound: null,
+  ArityMismatch: null,
+  TypeArityMismatch: null,
+  NonEntryFunctionInvoked: null,
+  CommandArgumentError: bcs.struct('CommandArgumentError', {
+    arg_idx: bcs.u16(),
+    kind: bcs.string(),
+  }),
+  TypeArgumentError: bcs.struct('TypeArgumentError', {
+    argument_idx: bcs.u16(),
+    kind: bcs.string(),
+  }),
+  UnusedValueWithoutDrop: bcs.struct('UnusedValueWithoutDrop', {
+    result_idx: bcs.u16(),
+    secondary_idx: bcs.u16(),
+  }),
+  InvalidPublicFunctionReturnType: bcs.struct(
+    'InvalidPublicFunctionReturnType',
+    {
+      idx: bcs.u16(),
+    },
+  ),
+  InvalidTransferObject: null,
+  EffectsTooLarge: bcs.struct('EffectsTooLarge', {
+    current_size: bcs.u64(),
+    max_size: bcs.u64(),
+  }),
+  PublishUpgradeMissingDependency: null,
+  PublishUpgradeDependencyDowngrade: null,
+  PackageUpgradeError: bcs.struct('PackageUpgradeError', {
+    upgrade_error: bcs.string(),
+  }),
+  WrittenObjectsTooLarge: bcs.struct('WrittenObjectsTooLarge', {
+    current_size: bcs.u64(),
+    max_size: bcs.u64(),
+  }),
+  CertificateDenied: null,
+  SuiMoveVerificationTimedout: null,
+  SharedObjectOperationNotAllowed: null,
+  InputObjectDeleted: null,
+  ExecutionCancelledDueToSharedObjectCongestion: bcs.struct(
+    'ExecutionCancelledDueToSharedObjectCongestion',
+    {
+      congested_objects: bcs.string(),
+    },
+  ),
+  AddressDeniedForCoin: bcs.struct('AddressDeniedForCoin', {
+    address: SuiAddress,
+    coin_type: bcs.string(),
+  }),
+  CoinTypeGlobalPause: bcs.struct('CoinTypeGlobalPause', {
+    coin_type: bcs.string(),
+  }),
+})
+
+const Failure = bcs.struct('Failure', {
+  error: ExecutionFailureStatus,
+  command: bcs.option(bcs.u64()),
+})
+
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-graphql-rpc/src/types/transaction_block_effects.rs#L78-L83
 const ExecutionStatus = bcs.enum('ExecutionStatus', {
   Success: null,
-  Failure: null,
+  Failure,
 })
 
 const TransactionEventsDigest = Digest
@@ -603,7 +701,9 @@ function mapper(object_source, mappings) {
     } else if (obj && typeof obj === 'object') {
       return Object.entries(obj).reduce((acc, [key, value]) => {
         const map_function = mappings[key]
-        acc[key] = map_function ? map_function(value) : map_recursive(value)
+        acc[key] = map_function
+          ? map_function(map_recursive(value))
+          : map_recursive(value)
         return acc
       }, {})
     }
@@ -976,17 +1076,21 @@ export async function read_checkpoints({
         processing_settings.current_checkpoint,
       )
       if (checkpoint) {
+        console.log(
+          '[>>] processing checkpoint:',
+          processing_settings.current_checkpoint,
+        )
         await process_checkpoint(
           checkpoint,
           processing_settings.current_checkpoint,
         )
         processing_settings.current_checkpoint++
       } else {
-        console.warn(
-          'missing checkpoint:',
-          processing_settings.current_checkpoint,
-          'retrying in 1s',
-        )
+        // console.warn(
+        //   'missing checkpoint:',
+        //   processing_settings.current_checkpoint,
+        //   'retrying in 1s',
+        // )
         await setTimeout(1000)
       }
     }
@@ -1025,12 +1129,14 @@ function read_checkpoint(buffer, known_types, object_filter) {
         sender: to_address,
         address: to_address,
         digest: toHEX,
-        // owner: x => `0x${toHEX(x)}`,
+        owner: o => (Array.isArray(o) ? to_address(o) : o),
         transaction_digest: to_address,
         AddressOwner: to_address,
         ObjectOwner: to_address,
         previous_transaction: to_address,
         package_id: to_address,
+        consensus_commit_digest: to_address,
+        ObjectWrite: ([key, value]) => ({ [to_address(key)]: value }),
         changed_objects: entries_array =>
           Object.fromEntries(
             entries_array.map(([key, value]) => [to_address(key), value]),
