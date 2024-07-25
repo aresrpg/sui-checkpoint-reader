@@ -1076,21 +1076,17 @@ export async function read_checkpoints({
         processing_settings.current_checkpoint,
       )
       if (checkpoint) {
-        console.log(
-          '[>>] processing checkpoint:',
-          processing_settings.current_checkpoint,
-        )
         await process_checkpoint(
           checkpoint,
           processing_settings.current_checkpoint,
         )
         processing_settings.current_checkpoint++
       } else {
-        // console.warn(
-        //   'missing checkpoint:',
-        //   processing_settings.current_checkpoint,
-        //   'retrying in 1s',
-        // )
+        console.warn(
+          'missing checkpoint:',
+          processing_settings.current_checkpoint,
+          'retrying in 1s',
+        )
         await setTimeout(1000)
       }
     }
