@@ -1,12 +1,14 @@
 import { setInterval, setTimeout } from 'timers/promises'
 import path from 'path'
 import { existsSync, readFileSync, readdirSync, unlinkSync } from 'fs'
+import { performance } from 'perf_hooks'
 
 import { bcs, toHEX } from '@mysten/bcs'
 import chokidar from 'chokidar'
 
 import sui_bcs from './generated/0x2.js'
 import standard_bcs from './generated/0x1.js'
+import { async_iterable } from './async_iterable.js'
 
 const Envelope = (name, data, auth_signature) =>
   bcs.struct(name, {
@@ -922,6 +924,20 @@ export async function read_checkpoints({
   const existing_files = get_existing_checkpoints_files(checkpoints_folder)
   const [lowest_known_checkpoint] = existing_files
 
+  let download_speeds = []
+  let process_speeds = []
+
+  const processing_state = {
+    cached: 0,
+    last_detected: 0,
+    downloaded: 0,
+    cleaned: 0,
+    processing: 0,
+    downloads_per_second: 0,
+    processing_per_second: 0,
+    elapsed: 0,
+  }
+
   Object.assign(known_types, {
     '0x0000000000000000000000000000000000000000000000000000000000000002':
       sui_bcs,
@@ -933,6 +949,14 @@ export async function read_checkpoints({
   if (lowest_known_checkpoint != null && lowest_known_checkpoint <= from)
     sync_settings.catching_up = false
 
+  function calculate_median(arr) {
+    const sorted = arr.slice().sort((a, b) => a - b)
+    const middle = Math.floor(sorted.length / 2)
+    if (sorted.length % 2 === 0)
+      return (sorted[middle - 1] + sorted[middle]) / 2
+    return sorted[middle]
+  }
+
   // Once we caught up, we start watching for file changes
   function start_listening_for_local_checkpoints() {
     console.log('[local] starting to watch for local checkpoints')
@@ -941,16 +965,13 @@ export async function read_checkpoints({
     })
     processing_settings.watcher.on('add', async file_path => {
       // if we detect local checkpoints
-      console.log('[system] detected new checkpoint:', file_path)
+      // console.log('[system] detected new checkpoint:', file_path)
       const file_number = +path.basename(file_path, '.chk')
+
+      processing_state.last_detected = file_number
 
       // if in configured range, we add it to the known checkpoints
       if (file_number >= from && file_number <= to) {
-        if (cleanup_checkpoints && known_checkpoints.size > 1000) {
-          console.warn(
-            `Beware, the buffered checkpoints amount is getting high (${known_checkpoints.size}), you might want to process them faster`,
-          )
-        }
         const buffer = readFileSync(file_path)
         const parsed_checkpoint = read_checkpoint(
           buffer,
@@ -1000,16 +1021,9 @@ export async function read_checkpoints({
     else start_listening_for_local_checkpoints()
 
     while (should_keep_downloading(sync_settings.current_checkpoint)) {
-      console.log(
-        '[remote] downloading checkpoints:',
-        Math.min(
-          sync_settings.current_checkpoint + concurrent_downloads,
-          lowest_known_checkpoint == null
-            ? to
-            : Math.min(to, lowest_known_checkpoint),
-        ),
-      )
       try {
+        const start_time = performance.now()
+
         await Promise.all(
           Array.from({ length: concurrent_downloads }, async (_, i) => {
             const current_checkpoint_number =
@@ -1024,14 +1038,39 @@ export async function read_checkpoints({
             const buffer = await get_remote_checkpoint(
               current_checkpoint_number,
             )
-            const parsed_checkpoint = read_checkpoint(
-              buffer,
-              known_types,
-              object_filter,
-            )
-            known_checkpoints.set(current_checkpoint_number, parsed_checkpoint)
+
+            try {
+              const parsed_checkpoint = read_checkpoint(
+                buffer,
+                known_types,
+                object_filter,
+              )
+              known_checkpoints.set(
+                current_checkpoint_number,
+                parsed_checkpoint,
+              )
+            } catch (error) {
+              console.error(
+                'Error while reading checkpoint, this should never happen and is an internal problem',
+                current_checkpoint_number,
+                error,
+              )
+              process.exit(1)
+            }
           }),
         )
+
+        processing_state.downloaded += Math.min(
+          concurrent_downloads,
+          to - sync_settings.current_checkpoint,
+        )
+
+        const end_time = performance.now()
+        const time_taken = end_time - start_time
+        const download_speed = concurrent_downloads / (time_taken / 1000)
+        download_speeds.push(download_speed)
+        download_speeds = download_speeds.slice(-100) // Keep last 100 values
+
         sync_settings.current_checkpoint += concurrent_downloads
 
         // Once we caught up, we start watching for file changes
@@ -1059,8 +1098,9 @@ export async function read_checkpoints({
         const files = get_existing_checkpoints_files(checkpoints_folder)
         for (const file of files) {
           if (file < processing_settings.current_checkpoint) {
-            console.log('[system] cleaning up checkpoint:', file)
+            // console.log('[system] cleaning up checkpoint:', file)
             unlinkSync(path.join(checkpoints_folder, `${file}.chk`))
+            processing_state.cached++
           }
         }
       }
@@ -1072,26 +1112,53 @@ export async function read_checkpoints({
   async function start_processing_checkpoints() {
     console.log('[system] starting to process checkpoints')
     while (processing_settings.current_checkpoint <= to) {
+      const start_time = performance.now()
+
       const checkpoint = known_checkpoints.get(
         processing_settings.current_checkpoint,
       )
       known_checkpoints.delete(processing_settings.current_checkpoint)
       if (checkpoint) {
+        processing_state.processing = processing_settings.current_checkpoint
         await process_checkpoint(
           checkpoint,
           processing_settings.current_checkpoint,
         )
         processing_settings.current_checkpoint++
+
+        const end_time = performance.now()
+        const time_taken = end_time - start_time
+        const process_speed = 1 / (time_taken / 1000)
+        process_speeds.push(process_speed)
+        process_speeds = process_speeds.slice(-100) // Keep last 100 values
       } else {
-        console.warn(
-          'missing checkpoint:',
-          processing_settings.current_checkpoint,
-          'retrying in 1s',
-        )
-        await setTimeout(1000)
+        // console.warn(
+        //   'missing checkpoint:',
+        //   processing_settings.current_checkpoint,
+        //   'retrying in 5s',
+        // )
+        await setTimeout(5000)
       }
     }
   }
+
+  const rounded = value => (Number.isNaN(value) ? 0 : Math.floor(value))
+
+  async_iterable
+    .from(setInterval(1000, null, { signal: controller.signal }))
+    .for_each(() => {
+      processing_state.cached_count = known_checkpoints.size
+      processing_state.downloads_per_second = rounded(
+        calculate_median(download_speeds),
+      )
+      processing_state.processing_per_second = rounded(
+        calculate_median(process_speeds),
+      )
+      processing_state.elapsed++
+
+      console.dir(processing_state, { depth: Infinity })
+    })
+    .catch(() => {})
 
   start_downloading_checkpoints()
   if (cleanup_checkpoints) start_cleaning_up_checkpoints()
