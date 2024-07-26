@@ -1075,6 +1075,7 @@ export async function read_checkpoints({
       const checkpoint = known_checkpoints.get(
         processing_settings.current_checkpoint,
       )
+      known_checkpoints.delete(processing_settings.current_checkpoint)
       if (checkpoint) {
         await process_checkpoint(
           checkpoint,
