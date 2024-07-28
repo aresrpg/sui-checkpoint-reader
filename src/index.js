@@ -238,6 +238,10 @@ export async function read_checkpoints({
   const existing_files = get_existing_checkpoints_files(checkpoints_folder)
   const [lowest_known_checkpoint] = existing_files
 
+  function log_update(index, msg) {
+    console.log(`-- [cache size: ${known_checkpoints.size}]`, msg, index)
+  }
+
   const processing_state = {
     cached: 0,
     last_detected: 0,
@@ -328,6 +332,8 @@ export async function read_checkpoints({
               return
             }
 
+            log_update(current_checkpoint_number, '[<] downloading checkpoint:')
+
             const buffer = await get_remote_checkpoint(
               current_checkpoint_number,
             )
@@ -345,7 +351,7 @@ export async function read_checkpoints({
         const elapsed = ((end_time - start_time) / 1000).toFixed(2)
 
         console.log(
-          'downloaded',
+          '[remote] downloaded',
           concurrent_downloads,
           'checkpoints in',
           +elapsed,
@@ -396,18 +402,19 @@ export async function read_checkpoints({
       const checkpoint_buffer = known_checkpoints.get(
         processing_settings.current_checkpoint,
       )
-      const current_checkoint_number = processing_settings.current_checkpoint
-      known_checkpoints.delete(current_checkoint_number)
+      const current_checkpoint_number = processing_settings.current_checkpoint
+      known_checkpoints.delete(current_checkpoint_number)
 
       try {
         if (checkpoint_buffer) {
+          log_update(current_checkpoint_number, '[>] processing checkpoint:')
           const parsed_checkpoint = read_checkpoint(
             checkpoint_buffer,
             known_types,
             object_filter,
           )
-          processing_state.processing = current_checkoint_number
-          await process_checkpoint(parsed_checkpoint, current_checkoint_number)
+          processing_state.processing = current_checkpoint_number
+          await process_checkpoint(parsed_checkpoint, current_checkpoint_number)
           processing_settings.current_checkpoint++
         } else {
           // console.warn(
@@ -420,7 +427,7 @@ export async function read_checkpoints({
       } catch (error) {
         console.error(
           'Error while processing checkpoint, this should never happen and is an internal problem:',
-          current_checkoint_number,
+          current_checkpoint_number,
           error,
         )
         process.exit(1)
