@@ -1,6 +1,6 @@
 import { setInterval, setTimeout } from 'timers/promises'
 import path from 'path'
-import { existsSync, readFileSync, readdirSync, unlinkSync } from 'fs'
+import { readFileSync, unlinkSync } from 'fs'
 import { performance } from 'perf_hooks'
 
 import { bcs, toHEX } from '@mysten/bcs'
@@ -9,6 +9,7 @@ import chokidar from 'chokidar'
 import sui_bcs from './generated/0x2.js'
 import standard_bcs from './generated/0x1.js'
 import { BLOB_ENCODING_BCS, CheckpointData, read_blob } from './bcs.js'
+import { get_local_checkpoints } from './get_local_checkpoints.js'
 
 function mapper(object_source, mappings) {
   const map_recursive = obj => {
@@ -197,15 +198,6 @@ function parse_type_param(params = []) {
   }, '')
 }
 
-function get_existing_checkpoints_files(checkpoints_folder) {
-  return checkpoints_folder && existsSync(checkpoints_folder)
-    ? readdirSync(checkpoints_folder)
-        .filter(file => file.endsWith('.chk'))
-        .map(file => +path.basename(file, '.chk'))
-        .sort((a, b) => a - b)
-    : []
-}
-
 export async function read_checkpoints({
   from = 1,
   to = Infinity,
@@ -235,8 +227,11 @@ export async function read_checkpoints({
     watcher: null,
   }
   const known_checkpoints = new Map()
-  const existing_files = get_existing_checkpoints_files(checkpoints_folder)
-  const [lowest_known_checkpoint] = existing_files
+  const existing_files = get_local_checkpoints(checkpoints_folder)
+  const [lowest_known_checkpoint_path] = existing_files
+  const lowest_known_checkpoint = lowest_known_checkpoint_path
+    ? +path.basename(lowest_known_checkpoint_path, '.chk')
+    : null
 
   function log_update(index, msg) {
     console.log(`-- [cache size: ${known_checkpoints.size}]`, msg, index)
@@ -285,8 +280,7 @@ export async function read_checkpoints({
     })
 
     // we once again check all files in the folder to start fresh
-    const recent_existing_files =
-      get_existing_checkpoints_files(checkpoints_folder)
+    const recent_existing_files = get_local_checkpoints(checkpoints_folder)
     // we then try to add them all to the known checkpoints
     for (const file of recent_existing_files) {
       if (file >= from && file <= to) {
@@ -382,10 +376,12 @@ export async function read_checkpoints({
         signal: controller.signal,
       })) {
         // check all checkpoints files, remove those below the currently processed
-        const files = get_existing_checkpoints_files(checkpoints_folder)
+        const files = get_local_checkpoints(checkpoints_folder).map(
+          f => +path.basename(f, '.chk'),
+        )
         for (const file of files) {
           if (file < processing_settings.current_checkpoint) {
-            // console.log('[system] cleaning up checkpoint:', file)
+            log_update(file, '[x] cleaning up checkpoint:')
             unlinkSync(path.join(checkpoints_folder, `${file}.chk`))
             processing_state.cached++
           }
