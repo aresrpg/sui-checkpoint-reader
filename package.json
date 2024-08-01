@@ -11,6 +11,16 @@
     "format": "prettier . --write && eslint . --fix",
     "postversion": "git push --follow-tags"
   },
+  "exports": {
+    "./reader": {
+      "import": "./src/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./snapshot": {
+      "import": "./src/snapshot/index.js",
+      "types": "./types/snapshot/index.d.ts"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aresrpg/sui-checkpoint-reader.git"
@@ -22,8 +32,10 @@
     "access": "public"
   },
   "dependencies": {
+    "@mongodb-js/zstd": "^1.2.0",
     "@mysten/bcs": "^1.0.2",
-    "chokidar": "^3.6.0"
+    "chokidar": "^3.6.0",
+    "classic-level": "^1.4.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",

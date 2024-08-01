@@ -82,7 +82,7 @@ function parse_content(struct, { contents, known_types }) {
   }
 }
 
-function format_objects(objects, known_types) {
+export function format_objects(objects, known_types) {
   return objects.map(object => {
     const {
       data: { Package, Move },
@@ -439,6 +439,27 @@ export async function read_checkpoints({
   })
 }
 
+export function premap_transaction(transaction) {
+  return mapper(transaction, {
+    sender: to_address,
+    address: to_address,
+    digest: toHEX,
+    owner: o => (Array.isArray(o) ? to_address(o) : o),
+    transaction_digest: to_address,
+    AddressOwner: to_address,
+    ObjectOwner: to_address,
+    previous_transaction: to_address,
+    package_id: to_address,
+    consensus_commit_digest: to_address,
+    ObjectWrite: ([key, value]) => ({ [to_address(key)]: value }),
+    changed_objects: entries_array =>
+      Object.fromEntries(
+        entries_array.map(([key, value]) => [to_address(key), value]),
+      ),
+    dependencies: dependencies => dependencies.map(to_address),
+  })
+}
+
 function read_checkpoint(buffer, known_types, object_filter) {
   const { encoding, data } = read_blob(buffer)
   if (encoding !== BLOB_ENCODING_BCS)
@@ -460,24 +481,7 @@ function read_checkpoint(buffer, known_types, object_filter) {
     },
     checkpoint_contents,
     transactions: transactions.map(transaction => {
-      const mapped = mapper(transaction, {
-        sender: to_address,
-        address: to_address,
-        digest: toHEX,
-        owner: o => (Array.isArray(o) ? to_address(o) : o),
-        transaction_digest: to_address,
-        AddressOwner: to_address,
-        ObjectOwner: to_address,
-        previous_transaction: to_address,
-        package_id: to_address,
-        consensus_commit_digest: to_address,
-        ObjectWrite: ([key, value]) => ({ [to_address(key)]: value }),
-        changed_objects: entries_array =>
-          Object.fromEntries(
-            entries_array.map(([key, value]) => [to_address(key), value]),
-          ),
-        dependencies: dependencies => dependencies.map(to_address),
-      })
+      const mapped = premap_transaction(transaction)
 
       return {
         ...mapped,

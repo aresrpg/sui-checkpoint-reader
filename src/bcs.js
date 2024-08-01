@@ -666,6 +666,52 @@ const CheckpointTransaction = bcs.struct('CheckpointTransaction', {
   output_objects: bcs.vector(SuiObject),
 })
 
+// https://github.com/MystenLabs/sui/blob/c1b1e1e74c82b950e8d531f1b84c605d1ea957ca/crates/sui-snapshot/src/lib.rs#L142-L145
+const FileType = bcs.enum('FileType', {
+  Object: null,
+  Reference: null,
+})
+
+// https://github.com/MystenLabs/sui/blob/c1b1e1e74c82b950e8d531f1b84c605d1ea957ca/crates/sui-storage/src/lib.rs#L56-L59
+const FileCompression = bcs.enum('FileCompression', {
+  None: null,
+  Zstd: null,
+})
+
+// https://github.com/MystenLabs/sui/blob/c1b1e1e74c82b950e8d531f1b84c605d1ea957ca/crates/sui-snapshot/src/lib.rs#L148-L154
+const FileMetadata = bcs.struct('FileMetadata', {
+  file_type: FileType,
+  bucket_num: bcs.u32(),
+  part_num: bcs.u32(),
+  file_compression: FileCompression,
+  sha3_digest: bcs.fixedArray(32, bcs.u8()),
+})
+
+// https://github.com/MystenLabs/sui/blob/c1b1e1e74c82b950e8d531f1b84c605d1ea957ca/crates/sui-snapshot/src/lib.rs#L173-L178
+const ManifestV1 = bcs.struct('ManifestV1', {
+  snapshot_version: bcs.u8(),
+  address_length: bcs.u64(),
+  file_metadata: bcs.vector(FileMetadata),
+  epoch: bcs.u64(),
+})
+
+// https://github.com/MystenLabs/sui/blob/main/crates/sui-graphql-rpc/src/types/object.rs#L139-L142
+const ObjectKey = bcs.struct('ObjectKey', {
+  object_id: SuiAddress,
+  version: bcs.u64(),
+})
+
+// https://github.com/MystenLabs/sui/blob/c1b1e1e74c82b950e8d531f1b84c605d1ea957ca/crates/sui-core/src/authority/authority_store_tables.rs#L501-L504
+export const LiveObject = bcs.enum('LiveObject', {
+  Normal: SuiObject,
+  Wrapped: ObjectKey,
+})
+
+// https://github.com/MystenLabs/sui/blob/c1b1e1e74c82b950e8d531f1b84c605d1ea957ca/crates/sui-snapshot/src/lib.rs#L181
+export const Manifest = bcs.enum('Manifest', {
+  V1: ManifestV1,
+})
+
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-types/src/full_checkpoint_content.rs#L14-L18
 export const CheckpointData = bcs.struct('CheckpointData', {
   checkpoint_summary: CertifiedCheckpointSummary,

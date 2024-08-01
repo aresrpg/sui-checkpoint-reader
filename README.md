@@ -16,6 +16,8 @@
 
 This library allows building custom [Sui indexers](https://docs.sui.io/guides/developer/advanced/custom-indexer?ref=blog.sui.io) in JavaScript. It reads checkpoint files from both remote and local sources and processes them efficiently.
 
+It also allows building a local leveldb from Sui's formal snapshots, which you can then process to initialize your indexer without the need to read checkpoints history for past epochs
+
 > **Note:** This is a work in progress and might not be suited for production usage.
 
 ## 🚀 Getting Started
@@ -29,7 +31,7 @@ npm install @aresrpg/sui-checkpoint-reader
 Here's a basic example of how to use the library:
 
 ```js
-import { read_checkpoints } from '@aresrpg/sui-checkpoint-reader'
+import { read_checkpoints } from '@aresrpg/sui-checkpoint-reader/reader'
 
 async function get_remote_checkpoint(num) {
   const response = await fetch(`https://checkpoints.testnet.sui.io/${num}.chk`)
@@ -49,10 +51,35 @@ await read_checkpoints({
   get_remote_checkpoint, // Function to fetch checkpoint data
   concurrent_downloads: 25, // Number of concurrent downloads allowed
   known_types, // BCS types you want to parse
-  checkpoints_folder: '', // Local folder for checkpoint files
+  checkpoints_folder: '', // Local folder for checkpoint files (nesting is supported at 1 level)
   cleanup_checkpoints: false, // Clean up processed checkpoint files
   process_checkpoint, // Function to process each checkpoint
 })
+```
+
+And here is how to get your leveldb from the formal snapshot
+
+```js
+import { download_and_store_objects } from '@aresrpg/sui-checkpoint-reader/snapshot'
+
+// this will start download the formal snapshot of the specified epoch
+// and save any objects recognized by your known types into leveldb (key: id, value: object)
+await download_and_store_objects({
+  network: 'testnet',
+  epoch: 440, // the epoch of the snapshot
+  known_types, // same types as for checkpoint reading
+  save_objects: false, // if you want to also save the .obj files locally under /epoch_X/*.obj
+  start_bucket = 1, // optional start files 1_1.obj
+  start_part = 1,
+  db_folder = './sui-formal-objects', // the leveldb folder
+})
+
+// and here you can iterate easily on your leveldb, note that you can use anything else to read those
+for await (const [db, object] of read_snapshot_objects('./sui-formal-objects')) {
+  // process all objects here, for example use db.get(object.contents.kiosk_id)
+  // to save something like { object, object_kiosk } in your storage of choice
+  console.dir(object, { depth: Infinity })
+}
 ```
 
 ## ⚙️ How It Works
