@@ -68,10 +68,11 @@ await download_and_store_objects({
   network: 'testnet',
   epoch: 440, // the epoch of the snapshot
   known_types, // same types as for checkpoint reading
-  save_objects: false, // if you want to also save the .obj files locally under /epoch_X/*.obj
+  save_objects: false, // if you want to also save the .obj files locally under obj_folder/epoch_X/*.obj
   start_bucket = 1, // optional start files 1_1.obj
   start_part = 1,
   db_folder = './sui-formal-objects', // the leveldb folder
+  obj_folder = './obj_files' // if `save_objects` is true, it'll use this folder to save obj files
 })
 
 // and here you can iterate easily on your leveldb, note that you can use anything else to read those
@@ -186,10 +187,11 @@ This configuration allows the checkpoint reader to correctly parse and process t
 - `network`: Network to download the snapshot from (e.g., `'testnet'`).
 - `epoch`: Epoch of the snapshot.
 - `known_types`: Generated BCS for types you want to parse.
-- `save_objects`: If true, saves `.obj` files locally under `/epoch_X/\*.obj` (default: `false`).
+- `save_objects`: If true, saves `.obj` files locally under `obj_folder/epoch_X/\*.obj` (default: `false`).
 - `start_bucket`: Optional start file (e.g., `1_1.obj`) (default: `1`).
 - `start_part`: Part to start from (default: `1`).
 - `db_folder`: Folder to store the leveldb files.
+- `obj_folder`: Folder to store the `.obj` files
 
 ### `read_snapshot_objects(db_folder)`
 

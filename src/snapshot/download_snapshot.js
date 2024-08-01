@@ -11,8 +11,15 @@ async function fetch_manifest({ network, epoch }) {
   return buffer
 }
 
-async function fetch_object({ network, epoch, bucket_num, part_num, save }) {
-  const file_path = `./epoch_${epoch}/${bucket_num}_${part_num}.obj`
+async function fetch_object({
+  network,
+  epoch,
+  bucket_num,
+  part_num,
+  save,
+  obj_folder,
+}) {
+  const file_path = `${obj_folder}/epoch_${epoch}/${bucket_num}_${part_num}.obj`
 
   if (existsSync(file_path)) {
     console.log(
@@ -29,9 +36,9 @@ async function fetch_object({ network, epoch, bucket_num, part_num, save }) {
   const buffer = await response.arrayBuffer()
 
   if (save) {
-    await mkdir(`./epoch_${epoch}`, { recursive: true })
+    await mkdir(`${obj_folder}/epoch_${epoch}`, { recursive: true })
     await writeFile(file_path, new Uint8Array(buffer))
-    console.log(`[snapshot] Saved object ${bucket_num}_${part_num}.obj to disk`)
+    console.log(`[snapshot] Saved object ${file_path}`)
   }
 
   return buffer
@@ -57,6 +64,7 @@ export async function* download_snapshot({
   save,
   start_bucket,
   start_part,
+  obj_folder,
 }) {
   console.log('[snapshot] Downloading snapshot manifest..')
   const manifest = parse_manifest(await fetch_manifest({ network, epoch }))
@@ -101,6 +109,7 @@ export async function* download_snapshot({
               bucket_num,
               part_num,
               save,
+              obj_folder,
             }),
           )
           return {

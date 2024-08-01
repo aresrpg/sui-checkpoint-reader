@@ -13,6 +13,7 @@ export async function download_and_store_objects({
   start_bucket = 1,
   start_part = 1,
   db_folder = './sui-formal-objects',
+  obj_folder = './obj_files',
 }) {
   const db = new ClassicLevel(db_folder)
 
@@ -23,6 +24,7 @@ export async function download_and_store_objects({
     save: save_objects,
     start_bucket,
     start_part,
+    obj_folder,
   })) {
     for (const { bucket_num, part_num, file_compression, buffer } of objects) {
       const objects = await parse_objects({ buffer, file_compression })
