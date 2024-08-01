@@ -170,30 +170,30 @@ This configuration allows the checkpoint reader to correctly parse and process t
 
 **Options:**
 
-- `from`: Start processing from this checkpoint number (default: 1).
-- `to`: Stop processing once this checkpoint number is reached (default: Infinity).
+- `from`: Start processing from this checkpoint number (default: `1`).
+- `to`: Stop processing once this checkpoint number is reached (default: `Infinity`).
 - `get_remote_checkpoint`: Function to fetch a checkpoint array buffer from a number.
-- `concurrent_downloads`: Number of concurrent downloads allowed while catching up (default: 25).
+- `concurrent_downloads`: Number of concurrent downloads allowed while catching up (default: `25`).
 - `known_types`: Generated BCS for types you want to parse.
-- `checkpoints_folder`: Local folder where your Sui node is dumping the checkpoint files (default: '').
-- `cleanup_checkpoints`: Option to delete already processed checkpoint files (default: false).
+- `checkpoints_folder`: Local folder where your Sui node is dumping the checkpoint files (default: `''`).
+- `cleanup_checkpoints`: Option to delete already processed checkpoint files (default: `false`).
 - `process_checkpoint`: Function to process a checkpoint.
 
 ### `download_and_store_objects(options)`
 
 **Options:**
 
-- `network`: Network to download the snapshot from (e.g., 'testnet').
+- `network`: Network to download the snapshot from (e.g., `'testnet'`).
 - `epoch`: Epoch of the snapshot.
 - `known_types`: Generated BCS for types you want to parse.
-- `save_objects`: If true, saves .obj files locally under /epoch_X/\*.obj (default: false).
-- `start_bucket`: Optional start file (e.g., 1_1.obj) (default: 1).
-- `start_part`: Part to start from (default: 1).
+- `save_objects`: If true, saves `.obj` files locally under `/epoch_X/\*.obj` (default: `false`).
+- `start_bucket`: Optional start file (e.g., `1_1.obj`) (default: `1`).
+- `start_part`: Part to start from (default: `1`).
 - `db_folder`: Folder to store the leveldb files.
 
 ### `read_snapshot_objects(db_folder)`
 
-- `db_folder`: T he leveldb folder to read the objects from.
+- `db_folder`: The leveldb folder to read the objects from.
 
 Returns:
 
