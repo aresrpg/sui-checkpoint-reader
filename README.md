@@ -73,6 +73,7 @@ await download_and_store_objects({
   start_part = 1,
   db_folder = './sui-formal-objects', // the leveldb folder
   obj_folder = './obj_files' // if `save_objects` is true, it'll use this folder to save obj files
+  concurrent_downloads = 1, // how many obj files to download in one go
 })
 
 // and here you can iterate easily on your leveldb, note that you can use anything else to read those
@@ -192,6 +193,7 @@ This configuration allows the checkpoint reader to correctly parse and process t
 - `start_part`: Part to start from (default: `1`).
 - `db_folder`: Folder to store the leveldb files.
 - `obj_folder`: Folder to store the `.obj` files
+- `concurrent_downloads`: Concurrent obj files download
 
 ### `read_snapshot_objects(db_folder)`
 

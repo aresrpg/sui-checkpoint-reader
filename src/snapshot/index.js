@@ -12,6 +12,7 @@ export async function download_and_store_objects({
   save_objects = false,
   start_bucket = 1,
   start_part = 1,
+  concurrent_downloads = 1,
   db_folder = './sui-formal-objects',
   obj_folder = './obj_files',
 }) {
@@ -20,7 +21,7 @@ export async function download_and_store_objects({
   for await (const objects of download_snapshot({
     network,
     epoch,
-    concurrent_downloads: 1,
+    concurrent_downloads,
     save: save_objects,
     start_bucket,
     start_part,
