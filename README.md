@@ -60,7 +60,9 @@ await read_checkpoints({
 And here is how to get your leveldb from the formal snapshot
 
 ```js
-import { download_and_store_objects } from '@aresrpg/sui-checkpoint-reader/snapshot'
+import { download_and_store_objects, read_snapshot_objects, get_db } from '@aresrpg/sui-checkpoint-reader/snapshot'
+
+const DB_FOLDER = './sui-formal-objects'
 
 // this will start download the formal snapshot of the specified epoch
 // and save any objects recognized by your known types into leveldb (key: id, value: object)
@@ -71,13 +73,15 @@ await download_and_store_objects({
   save_objects: false, // if you want to also save the .obj files locally under obj_folder/epoch_X/*.obj
   start_bucket = 1, // optional start files 1_1.obj
   start_part = 1,
-  db_folder = './sui-formal-objects', // the leveldb folder
+  db_folder = DB_FOLDER, // the leveldb folder
   obj_folder = './obj_files' // if `save_objects` is true, it'll use this folder to save obj files
   concurrent_downloads = 1, // how many obj files to download in one go
 })
 
+const db = get_db(DB_FOLDER)
+
 // and here you can iterate easily on your leveldb, note that you can use anything else to read those
-for await (const [db, object] of read_snapshot_objects('./sui-formal-objects')) {
+for await (const object of read_snapshot_objects(DB_FOLDER)) {
   // process all objects here, for example use db.get(object.contents.kiosk_id)
   // to save something like { object, object_kiosk } in your storage of choice
   console.dir(object, { depth: Infinity })

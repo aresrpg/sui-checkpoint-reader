@@ -1,9 +1,15 @@
 import { ClassicLevel } from 'classic-level'
 
 import { format_objects, premap_transaction } from '../index.js'
+import sui_bcs from '../generated/0x2.js'
+import standard_bcs from '../generated/0x1.js'
 
 import { download_snapshot } from './download_snapshot.js'
 import { parse_objects } from './parse_object.js'
+
+export function get_db(db_folder = './sui-formal-objects') {
+  return new ClassicLevel(db_folder)
+}
 
 export async function download_and_store_objects({
   network,
@@ -16,7 +22,14 @@ export async function download_and_store_objects({
   db_folder = './sui-formal-objects',
   obj_folder = './obj_files',
 }) {
-  const db = new ClassicLevel(db_folder)
+  const db = get_db(db_folder)
+
+  Object.assign(known_types, {
+    '0x0000000000000000000000000000000000000000000000000000000000000002':
+      sui_bcs,
+    '0x0000000000000000000000000000000000000000000000000000000000000001':
+      standard_bcs,
+  })
 
   for await (const objects of download_snapshot({
     network,
@@ -61,9 +74,9 @@ export async function download_and_store_objects({
 export async function* read_snapshot_objects(
   db_folder = './sui-formal-objects',
 ) {
-  const db = new ClassicLevel(db_folder)
+  const db = get_db(db_folder)
 
   for await (const value of db.values()) {
-    yield [db, JSON.parse(value)]
+    yield JSON.parse(value)
   }
 }
