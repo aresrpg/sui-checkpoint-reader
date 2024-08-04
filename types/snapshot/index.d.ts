@@ -1,5 +1,5 @@
 export function get_db(db_folder?: string): ClassicLevel<string, string>;
-export function download_and_store_objects({ network, epoch, known_types, save_objects, start_bucket, start_part, concurrent_downloads, db_folder, obj_folder, }: {
+export function download_and_store_objects({ network, epoch, known_types, save_objects, start_bucket, start_part, concurrent_downloads, obj_folder, db, }: {
     network: any;
     epoch: any;
     known_types: any;
@@ -7,8 +7,8 @@ export function download_and_store_objects({ network, epoch, known_types, save_o
     start_bucket?: number;
     start_part?: number;
     concurrent_downloads?: number;
-    db_folder?: string;
     obj_folder?: string;
+    db: any;
 }): Promise<void>;
-export function read_snapshot_objects(db_folder?: string): AsyncGenerator<any, void, unknown>;
+export function read_snapshot_objects(db: any): AsyncGenerator<any, void, unknown>;
 import { ClassicLevel } from 'classic-level';

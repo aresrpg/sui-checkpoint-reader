@@ -36,6 +36,8 @@ function parse_content(struct, { contents, known_types }) {
   if (!contents) return
 
   function find_nested_bcs({ address, module, name, type_params = [], $kind }) {
+    if ($kind && $kind !== 'Struct') return bcs[$kind.toLowerCase()]()
+
     const current_bcs = known_types[address]?.[module]?.[name]
 
     if (!current_bcs) return
@@ -50,7 +52,6 @@ function parse_content(struct, { contents, known_types }) {
       return current_bcs(...nested_bcs)
     }
 
-    if ($kind && $kind !== 'Struct') return bcs[$kind.toLowerCase()]()
     return current_bcs
   }
 
@@ -182,8 +183,8 @@ function format_events(events, known_types) {
 
 function parse_type_param(params = []) {
   if (!params.length) return ''
-  return params.reduce((result, { Struct, ...rest }) => {
-    if (!Struct) return JSON.stringify(rest)
+  return params.reduce((result, { Struct, $kind }) => {
+    if (!Struct) return `${result}, ${$kind.toLowerCase()}`
     const { address, module, name, type_params = [] } = Struct
     const typename = `${address}::${module}::${name}`
 

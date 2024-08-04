@@ -19,11 +19,9 @@ export async function download_and_store_objects({
   start_bucket = 1,
   start_part = 1,
   concurrent_downloads = 1,
-  db_folder = './sui-formal-objects',
   obj_folder = './obj_files',
+  db,
 }) {
-  const db = get_db(db_folder)
-
   Object.assign(known_types, {
     '0x0000000000000000000000000000000000000000000000000000000000000002':
       sui_bcs,
@@ -71,11 +69,7 @@ export async function download_and_store_objects({
   }
 }
 
-export async function* read_snapshot_objects(
-  db_folder = './sui-formal-objects',
-) {
-  const db = get_db(db_folder)
-
+export async function* read_snapshot_objects(db) {
   for await (const value of db.values()) {
     yield JSON.parse(value)
   }
