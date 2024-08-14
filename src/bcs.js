@@ -128,7 +128,7 @@ const CheckpointContents = bcs.enum('CheckpointContents', {
 const EmptySignInfo = bcs.struct('EmptySignInfo', {})
 
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-graphql-rpc/src/types/sui_address.rs#L15
-const SuiAddress = bcs.fixedArray(32, bcs.u8())
+export const SuiAddress = bcs.fixedArray(32, bcs.u8())
 
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-graphql-rpc/src/types/object.rs#L100-L107
 const ObjectRef = bcs.struct('ObjectRef', {

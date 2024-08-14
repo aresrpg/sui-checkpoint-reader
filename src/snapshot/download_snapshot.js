@@ -18,30 +18,44 @@ async function fetch_object({
   part_num,
   save,
   obj_folder,
+  include_refs = false,
 }) {
   const file_path = `${obj_folder}/epoch_${epoch}/${bucket_num}_${part_num}.obj`
+  const ref_file_path = `${obj_folder}/epoch_${epoch}/${bucket_num}_${part_num}.ref`
 
   if (existsSync(file_path)) {
     console.log(
       `[snapshot] File ${bucket_num}_${part_num}.obj already exists locally.`,
     )
     const { buffer } = await readFile(file_path)
-    return buffer
+    if (include_refs) {
+      const { buffer: ref_buffer } = await readFile(ref_file_path)
+      return { buffer, ref_buffer }
+    }
+    return { buffer }
   }
 
-  console.log(`[snapshot] Downloading object ${bucket_num}_${part_num}.obj`)
+  console.log(`[snapshot] Downloading object & ref ${bucket_num}_${part_num}`)
   const response = await fetch(
     `https://formal-snapshot.${network}.sui.io/epoch_${epoch}/${bucket_num}_${part_num}.obj`,
   )
+
+  const ref_response = include_refs
+    ? await fetch(
+        `https://formal-snapshot.${network}.sui.io/epoch_${epoch}/${bucket_num}_${part_num}.ref`,
+      )
+    : null
   const buffer = await response.arrayBuffer()
+  const ref_buffer = include_refs ? await ref_response.arrayBuffer() : null
 
   if (save) {
     await mkdir(`${obj_folder}/epoch_${epoch}`, { recursive: true })
     await writeFile(file_path, new Uint8Array(buffer))
-    console.log(`[snapshot] Saved object ${file_path}`)
+    if (include_refs) await writeFile(ref_file_path, new Uint8Array(ref_buffer))
+    console.log(`[snapshot] Saved files ${file_path}`)
   }
 
-  return buffer
+  return { buffer, ref_buffer }
 }
 
 function parse_manifest(buffer) {
@@ -50,7 +64,7 @@ function parse_manifest(buffer) {
   const view = new DataView(buffer)
 
   // eslint-disable-next-line eqeqeq
-  if (view.getUint32(0) != 0x00c0ffee) throw new Error('Invalid magic')
+  // if (view.getUint32(0) != 0x00c0ffee) throw new Error('Invalid magic')
 
   const serializedManifest = new Uint8Array(view.buffer).slice(4, -32)
 
@@ -65,6 +79,7 @@ export async function* download_snapshot({
   start_bucket,
   start_part,
   obj_folder,
+  include_refs = false,
 }) {
   console.log('[snapshot] Downloading snapshot manifest..')
   const manifest = parse_manifest(await fetch_manifest({ network, epoch }))
@@ -102,20 +117,20 @@ export async function* download_snapshot({
           file_type,
           sha3_digest,
         }) => {
-          const buffer = Buffer.from(
-            await fetch_object({
-              network,
-              epoch,
-              bucket_num,
-              part_num,
-              save,
-              obj_folder,
-            }),
-          )
+          const { buffer, ref_buffer } = await fetch_object({
+            network,
+            epoch,
+            bucket_num,
+            part_num,
+            save,
+            obj_folder,
+            include_refs,
+          })
           return {
             bucket_num,
             part_num,
-            buffer,
+            buffer: Buffer.from(buffer),
+            ref_buffer: Buffer.from(ref_buffer),
             file_compression,
             file_type,
             sha3_digest,

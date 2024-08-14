@@ -3,12 +3,17 @@ import path from 'path'
 import { readFileSync, unlinkSync } from 'fs'
 import { performance } from 'perf_hooks'
 
-import { bcs, toHEX } from '@mysten/bcs'
+import { bcs, toB58, toHEX } from '@mysten/bcs'
 import chokidar from 'chokidar'
 
 import sui_bcs from './generated/0x2.js'
 import standard_bcs from './generated/0x1.js'
-import { BLOB_ENCODING_BCS, CheckpointData, read_blob } from './bcs.js'
+import {
+  BLOB_ENCODING_BCS,
+  CheckpointData,
+  read_blob,
+  SuiAddress,
+} from './bcs.js'
 import { get_local_checkpoints } from './get_local_checkpoints.js'
 
 function mapper(object_source, mappings) {
@@ -35,8 +40,25 @@ const to_address = bytes => `0x${toHEX(bytes)}`
 function parse_content(struct, { contents, known_types }) {
   if (!contents) return
 
-  function find_nested_bcs({ address, module, name, type_params = [], $kind }) {
-    if ($kind && $kind !== 'Struct') return bcs[$kind.toLowerCase()]()
+  function find_nested_bcs({
+    address,
+    module,
+    name,
+    type_params = [],
+    $kind,
+    ...rest
+  }) {
+    if ($kind && $kind !== 'Struct') {
+      switch ($kind) {
+        case 'Address':
+          return SuiAddress
+        case 'Vector':
+          if (rest.Vector.Struct) return find_nested_bcs(rest.Vector.Struct)
+          return bcs.vector(bcs[rest.Vector.$kind.toLowerCase()])
+        default:
+          return bcs[$kind.toLowerCase()]()
+      }
+    }
 
     const current_bcs = known_types[address]?.[module]?.[name]
 
@@ -83,7 +105,7 @@ function parse_content(struct, { contents, known_types }) {
   }
 }
 
-export function format_objects(objects, known_types) {
+export function format_objects(objects, known_types, get_object_digest) {
   return objects.map(object => {
     const {
       data: { Package, Move },
@@ -125,11 +147,15 @@ export function format_objects(objects, known_types) {
         contents,
         known_types,
       })
+      const digest = parsed_content
+        ? get_object_digest(parsed_content.id)
+        : null
       return {
         has_public_transfer,
         type: `${address}::${module}::${name}`,
         version,
         storage_rebate,
+        digest,
         owner,
         previous_transaction,
         ...(type_params?.length && {
@@ -452,7 +478,7 @@ export function premap_transaction(transaction) {
     previous_transaction: to_address,
     package_id: to_address,
     consensus_commit_digest: to_address,
-    ObjectWrite: ([key, value]) => ({ [to_address(key)]: value }),
+    ObjectWrite: ([key, value]) => ({ [toB58(key)]: value }),
     changed_objects: entries_array =>
       Object.fromEntries(
         entries_array.map(([key, value]) => [to_address(key), value]),
@@ -483,15 +509,23 @@ function read_checkpoint(buffer, known_types, object_filter) {
     checkpoint_contents,
     transactions: transactions.map(transaction => {
       const mapped = premap_transaction(transaction)
+      const get_object_digest = id => {
+        const object_write =
+          mapped.effects.V2.changed_objects[id]?.output_state?.ObjectWrite ?? {}
+        return Object.keys(object_write)[0]
+      }
 
       return {
         ...mapped,
-        input_objects: format_objects(mapped.input_objects, known_types).filter(
-          object_filter,
-        ),
+        input_objects: format_objects(
+          mapped.input_objects,
+          known_types,
+          get_object_digest,
+        ).filter(object_filter),
         output_objects: format_objects(
           mapped.output_objects,
           known_types,
+          get_object_digest,
         ).filter(object_filter),
         ...(mapped.events?.data?.length && {
           events: format_events(mapped.events.data, known_types),
@@ -499,6 +533,8 @@ function read_checkpoint(buffer, known_types, object_filter) {
       }
     }),
   }
+
+  // console.dir(final_result, { depth: Infinity })
 
   return final_result
 }

@@ -1,4 +1,5 @@
 import { decompress as zstdDecompress } from '@mongodb-js/zstd'
+import { toB58, toHEX } from '@mysten/bcs'
 
 import { LiveObject } from '../bcs.js'
 
@@ -14,6 +15,52 @@ function read_uvarint(buffer, offset) {
     shift += 7
   } while (byte >= 0x80)
   return [value, offset]
+}
+
+export async function parse_reference({ buffer, file_compression }) {
+  const decompressed_buffer =
+    file_compression.$kind === 'Zstd' ? await zstdDecompress(buffer) : buffer
+
+  const view = new DataView(decompressed_buffer.buffer)
+
+  // Validate magic number
+  // eslint-disable-next-line eqeqeq
+  if (view.getUint32(0) != 0xdeadbeef) throw new Error('Invalid magic')
+
+  const object_refs = []
+  const address_len = 32 // SuiAddress length
+  const sequence_num_len = 8 // u64 length
+  const digest_len = 32 // Digest length
+
+  let offset = 4
+  while (offset < view.byteLength) {
+    // Extract address (32 bytes)
+    const address = new Uint8Array(
+      decompressed_buffer.slice(offset, offset + address_len),
+    )
+    offset += address_len
+
+    // Extract sequence number (8 bytes, BigEndian)
+    const sequence_number = view.getBigUint64(offset, false) // false for BigEndian
+    offset += sequence_num_len
+
+    // Extract digest (32 bytes)
+    const digest = new Uint8Array(
+      decompressed_buffer.slice(offset, offset + digest_len),
+    )
+    offset += digest_len
+
+    // Manually construct the object reference
+    const obj_ref = {
+      address: `0x${toHEX(address)}`,
+      version: sequence_number,
+      digest: toB58(digest),
+    }
+
+    object_refs.push(obj_ref)
+  }
+
+  return object_refs
 }
 
 export async function parse_objects({ buffer, file_compression }) {
