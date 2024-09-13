@@ -2,6 +2,9 @@ export function read_blob(buffer: any): {
     encoding: number;
     data: Uint8Array;
 };
+export const SuiAddress: import("@mysten/bcs").BcsType<number[], Iterable<number> & {
+    length: number;
+}>;
 export const LiveObject: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutputShapeWithKeys<{
     Normal: {
         data: import("@mysten/bcs").EnumOutputShapeWithKeys<{

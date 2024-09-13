@@ -243,6 +243,7 @@ export async function read_checkpoints({
     console.log('[indexer] process_checkpoint:', index)
   },
   cleanup_checkpoints = false,
+  local_files_only = false,
 }) {
   const controller = new AbortController()
   const sync_settings = {
@@ -458,7 +459,7 @@ export async function read_checkpoints({
     }
   }
 
-  start_downloading_checkpoints()
+  if (!local_files_only) start_downloading_checkpoints()
   if (cleanup_checkpoints) start_cleaning_up_checkpoints()
   await start_processing_checkpoints().then(() => {
     controller.abort()

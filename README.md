@@ -54,6 +54,7 @@ await read_checkpoints({
   checkpoints_folder: '', // Local folder for checkpoint files (nesting is supported at 1 level)
   cleanup_checkpoints: false, // Clean up processed checkpoint files
   process_checkpoint, // Function to process each checkpoint
+  local_files_only: false, // if true, the reader will only use checkpoints exported by the node
 })
 ```
 

@@ -1,3 +1,11 @@
+export function parse_reference({ buffer, file_compression }: {
+    buffer: any;
+    file_compression: any;
+}): Promise<{
+    address: string;
+    version: bigint;
+    digest: string;
+}[]>;
 export function parse_objects({ buffer, file_compression }: {
     buffer: any;
     file_compression: any;
