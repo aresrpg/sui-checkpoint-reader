@@ -18,7 +18,7 @@ export function parse_objects({ buffer, file_compression }: {
                         address: number[];
                         module: string;
                         name: string;
-                        type_params: any[];
+                        type_args: any[];
                     };
                     GasCoin: unknown;
                     StakedSui: unknown;

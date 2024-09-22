@@ -8,13 +8,9 @@ import chokidar from 'chokidar'
 
 import sui_bcs from './generated/0x2.js'
 import standard_bcs from './generated/0x1.js'
-import {
-  BLOB_ENCODING_BCS,
-  CheckpointData,
-  read_blob,
-  SuiAddress,
-} from './bcs.js'
 import { get_local_checkpoints } from './get_local_checkpoints.js'
+import { SuiAddress } from './generated/bcs-sui.js'
+import { CheckpointData } from './bcs-checkpoints.js'
 
 function mapper(object_source, mappings) {
   const map_recursive = obj => {
@@ -79,7 +75,7 @@ function parse_content(struct, { contents, known_types }) {
 
   const found_bcs = find_nested_bcs(struct)
 
-  if (!found_bcs) return
+  if (!found_bcs?.parse) return
 
   const parsed = found_bcs.parse(new Uint8Array(contents))
 
@@ -450,7 +446,8 @@ export async function read_checkpoints({
         }
       } catch (error) {
         console.error(
-          'Error while processing checkpoint, this should never happen and is an internal problem:',
+          '/!\\ Error while processing checkpoint, this should never happen and is an internal problem of the sui-checkpoint-reader lib:',
+          '\ncurrent checkpoint:',
           current_checkpoint_number,
           error,
         )
@@ -488,6 +485,19 @@ export function premap_transaction(transaction) {
   })
 }
 
+// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-storage/src/blob.rs#L19
+const BLOB_ENCODING_BCS = 1
+
+// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-storage/src/blob.rs#L78-L85
+function read_blob(buffer) {
+  const view = new Uint8Array(buffer)
+  return {
+    encoding: view[0],
+    // TODO: subarray seems to cause an issue with the bcs library
+    data: view.slice(1),
+  }
+}
+
 function read_checkpoint(buffer, known_types, object_filter) {
   const { encoding, data } = read_blob(buffer)
   if (encoding !== BLOB_ENCODING_BCS)
@@ -511,8 +521,10 @@ function read_checkpoint(buffer, known_types, object_filter) {
     transactions: transactions.map(transaction => {
       const mapped = premap_transaction(transaction)
       const get_object_digest = id => {
+        console.dir(mapped, { depth: Infinity })
         const object_write =
-          mapped.effects.V2.changed_objects[id]?.output_state?.ObjectWrite ?? {}
+          mapped.effects.V2?.changed_objects[id]?.output_state?.ObjectWrite ??
+          {}
         return Object.keys(object_write)[0]
       }
 

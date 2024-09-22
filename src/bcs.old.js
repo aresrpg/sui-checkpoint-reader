@@ -718,16 +718,3 @@ export const CheckpointData = bcs.struct('CheckpointData', {
   checkpoint_contents: CheckpointContents,
   transactions: bcs.vector(CheckpointTransaction),
 })
-
-// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-storage/src/blob.rs#L19
-export const BLOB_ENCODING_BCS = 1
-
-// https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-storage/src/blob.rs#L78-L85
-export function read_blob(buffer) {
-  const view = new Uint8Array(buffer)
-  return {
-    encoding: view[0],
-    // TODO: subarray seems to cause an issue with the bcs library
-    data: view.slice(1),
-  }
-}

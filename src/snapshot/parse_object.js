@@ -1,7 +1,7 @@
 import { decompress as zstdDecompress } from '@mongodb-js/zstd'
 import { toB58, toHEX } from '@mysten/bcs'
 
-import { LiveObject } from '../bcs.js'
+import { LiveObject } from '../bcs-checkpoints.js'
 
 const BLOB_ENCODING_BCS = 1
 

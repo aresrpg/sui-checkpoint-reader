@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 
-import { Manifest } from '../bcs.js'
+import { Manifest } from '../bcs-checkpoints.js'
 
 async function fetch_manifest({ network, epoch }) {
   const response = await fetch(
