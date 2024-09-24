@@ -7,10 +7,10 @@ import {
   EmptySignInfo,
   Owner,
   SenderSignedData,
+  StructTag,
   SuiAddress,
   TransactionDigest,
   TransactionEffects,
-  TransactionEventsDigest,
 } from './generated/bcs-sui.js'
 
 const Envelope = (name, data, auth_signature) =>
@@ -63,10 +63,22 @@ const SuiObject = bcs.struct('SuiObject', {
 
 const Transaction = Envelope('Transaction', SenderSignedData, EmptySignInfo)
 
+const TransactionEvent = bcs.struct('TransactionEvent', {
+  package_id: SuiAddress,
+  transaction_module: bcs.string(),
+  sender: SuiAddress,
+  type: StructTag,
+  contents: bcs.vector(bcs.u8()),
+})
+
+const TransactionEvents = bcs.struct('TransactionEvents', {
+  data: bcs.vector(TransactionEvent),
+})
+
 const CheckpointTransaction = bcs.struct('CheckpointTransaction', {
   transaction: Transaction,
   effects: TransactionEffects,
-  events: bcs.option(TransactionEventsDigest),
+  events: bcs.option(TransactionEvents),
   input_objects: bcs.vector(SuiObject),
   output_objects: bcs.vector(SuiObject),
 })

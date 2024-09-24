@@ -31,7 +31,8 @@ function mapper(object_source, mappings) {
   return map_recursive(object_source)
 }
 
-const to_address = bytes => `0x${toHEX(bytes)}`
+// @ts-ignore
+const to_address = bytes => (Array.isArray(bytes) ? `0x${toHEX(bytes)}` : bytes)
 
 function parse_content(struct, { contents, known_types }) {
   if (!contents) return
@@ -183,7 +184,7 @@ function format_events(events, known_types) {
         sender,
       }
 
-      const final_contents = bcs
+      const final_contents = bcs?.parse
         ? Object.fromEntries(
             Object.entries(bcs.parse(new Uint8Array(contents))).map(
               ([key, value]) => {
@@ -502,6 +503,8 @@ function read_checkpoint(buffer, known_types, object_filter) {
   const { encoding, data } = read_blob(buffer)
   if (encoding !== BLOB_ENCODING_BCS)
     throw new Error(`unsupported encoding ${encoding}`)
+
+  console.dir({ encoding, data })
 
   const { checkpoint_summary, checkpoint_contents, transactions } =
     CheckpointData.parse(data)
