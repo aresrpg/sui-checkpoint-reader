@@ -577,7 +577,20 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                 aux_data_digest: number[];
             };
         }, "V1" | "V2">;
-        events: number[];
+        events: {
+            data: {
+                package_id: number[];
+                transaction_module: string;
+                sender: number[];
+                type: {
+                    address: number[];
+                    module: string;
+                    name: string;
+                    type_args: any[];
+                };
+                contents: number[];
+            }[];
+        };
         input_objects: {
             data: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                 Move: {
@@ -1225,8 +1238,31 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                 };
             };
         }>;
-        events: Iterable<number> & {
-            length: number;
+        events: {
+            data: Iterable<{
+                package_id: Iterable<number> & {
+                    length: number;
+                };
+                transaction_module: string;
+                sender: Iterable<number> & {
+                    length: number;
+                };
+                type: {
+                    address: Iterable<number> & {
+                        length: number;
+                    };
+                    module: string;
+                    name: string;
+                    type_args: Iterable<any> & {
+                        length: number;
+                    };
+                };
+                contents: Iterable<number> & {
+                    length: number;
+                };
+            }> & {
+                length: number;
+            };
         };
         input_objects: Iterable<{
             data: import("@mysten/bcs").EnumInputShape<{
