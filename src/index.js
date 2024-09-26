@@ -504,8 +504,6 @@ function read_checkpoint(buffer, known_types, object_filter) {
   if (encoding !== BLOB_ENCODING_BCS)
     throw new Error(`unsupported encoding ${encoding}`)
 
-  console.dir({ encoding, data })
-
   const { checkpoint_summary, checkpoint_contents, transactions } =
     CheckpointData.parse(data)
 
@@ -524,7 +522,6 @@ function read_checkpoint(buffer, known_types, object_filter) {
     transactions: transactions.map(transaction => {
       const mapped = premap_transaction(transaction)
       const get_object_digest = id => {
-        console.dir(mapped, { depth: Infinity })
         const object_write =
           mapped.effects.V2?.changed_objects[id]?.output_state?.ObjectWrite ??
           {}
