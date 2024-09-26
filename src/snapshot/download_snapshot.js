@@ -126,11 +126,12 @@ export async function* download_snapshot({
             obj_folder,
             include_refs,
           })
+
           return {
             bucket_num,
             part_num,
             buffer: Buffer.from(buffer),
-            ref_buffer: Buffer.from(ref_buffer),
+            ref_buffer: ref_buffer && Buffer.from(ref_buffer),
             file_compression,
             file_type,
             sha3_digest,
