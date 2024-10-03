@@ -2,7 +2,7 @@ import { writeFile } from 'fs/promises'
 
 import { parse } from 'yaml'
 
-const VERSION = 'testnet-v1.33.2'
+const VERSION = 'main'
 const YAML_URL =
   'https://raw.githubusercontent.com/MystenLabs/sui/{version}/crates/sui-core/tests/staged/sui.yaml'
 
@@ -12,10 +12,54 @@ async function get_type_definitions() {
   return parse(yamlText)
 }
 
+function parse_function_type(type_string) {
+  const clean = str => str.replace(/sui_types::/g, '')
+
+  const parse_type = type => {
+    const match = type.match(/^([\w:]+)(?:<(.+)>)?$/)
+    if (!match) {
+      return null
+    }
+
+    const [, type_name, sub_types] = match
+
+    const result = { type: type_name.split('::').pop(), subtypes: [] }
+
+    if (sub_types) {
+      let depth = 0
+      let current = ''
+      for (let i = 0; i < sub_types.length; i++) {
+        const char = sub_types[i]
+        if (char === '<') depth++
+        else if (char === '>') depth--
+
+        if (char === ',' && depth === 0) {
+          if (current.trim()) {
+            result.subtypes.push(parse_type(current.trim()))
+          }
+          current = ''
+        } else {
+          current += char
+        }
+      }
+
+      if (current.trim()) {
+        result.subtypes.push(parse_type(current.trim()))
+      }
+    }
+
+    return result
+  }
+
+  const cleaned_string = clean(type_string)
+  return parse_type(cleaned_string)
+}
+
 function generate_bcs_types(parsed_yaml) {
   const typeGraph = new Map()
   const typeSet = new Set()
   const orderedTypes = []
+  const functionTypes = new Map()
 
   // Build dependency graph
   for (const [name, value] of Object.entries(parsed_yaml)) {
@@ -39,12 +83,38 @@ function generate_bcs_types(parsed_yaml) {
     visitNode(type)
   }
 
-  // Generate ordered content
-  const content = orderedTypes.map(
-    name => `export const ${name} = ${parse_type(parsed_yaml[name], name)};`,
+  orderedTypes
+    .filter(name => name.includes('sui_types::'))
+    .forEach(name => {
+      const { type, subtypes } = parse_function_type(name)
+      const type_content = parsed_yaml[name]
+
+      if (!functionTypes.has(type)) {
+        functionTypes.set(type, { name, subtypes, content: type_content })
+      }
+    })
+
+  const function_types = Array.from(functionTypes.entries()).map(
+    ([type, { name, subtypes, content }]) => {
+      const params = content.STRUCT
+        ? content.STRUCT.map(obj => Object.keys(obj)[0]).join(', ')
+        : 'data'
+      return `const ${type} = (name, ${params}) =>
+  ${parse_type(content, name)}`
+    },
   )
 
-  return `import { bcs } from '@mysten/bcs';\n\n${content.join('\n')}`
+  // Generate ordered content
+  const content = orderedTypes
+    .filter(name => !name.includes('sui_types::'))
+    .map(
+      name => `export const ${name} = ${parse_type(parsed_yaml[name], name)};`,
+    )
+
+  return `import { bcs } from '@mysten/bcs';
+${function_types.join('\n\n')}
+
+${content.join('\n')}`
 }
 
 function getDependencies(type) {
@@ -64,11 +134,24 @@ function getDependencies(type) {
   return Array.from(deps)
 }
 
-function parse_type(type, name = null) {
+function parse_type(type, name = 'name') {
+  if (name?.includes('sui_types::')) {
+    const { type: funcName } = parse_function_type(name)
+    const params = type.STRUCT
+      ? type.STRUCT.map(obj => Object.keys(obj)[0]).join(', ')
+      : 'data'
+    return `${funcName}('${name}', ${params})`
+  }
   if (typeof type === 'object') {
     if (type.NEWTYPESTRUCT) return parse_type(type.NEWTYPESTRUCT, name)
     if (type.STRUCT) return parse_struct(type.STRUCT, name)
-    if (type.TYPENAME) return type.TYPENAME
+    if (type.TYPENAME) {
+      const parsed = parse_function_type(type.TYPENAME)
+      if (parsed.subtypes.length > 0) {
+        return `${parsed.type}('${name}', ${parsed.subtypes.map(st => st.type).join(', ')})`
+      }
+      return type.TYPENAME
+    }
     if (type.SEQ) return `bcs.vector(${parse_type(type.SEQ, name)})`
     if (type.OPTION) return `bcs.option(${parse_type(type.OPTION, name)})`
     if (type.MAP)
@@ -133,6 +216,7 @@ function parse_primitive(type) {
 
 console.log('Fetching type definitions...')
 const definitions = await get_type_definitions()
+await writeFile('./src/types.json', JSON.stringify(definitions, null, 2))
 
 console.log('Generating BCS types...')
 await writeFile('./src/generated/bcs-sui.js', generate_bcs_types(definitions))
