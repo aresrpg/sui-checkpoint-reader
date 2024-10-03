@@ -56,7 +56,10 @@ export async function download_and_store_objects({
           })
         : []
 
-      const raw_objects = objects.map(({ Normal }) => Normal).filter(Boolean)
+      const raw_objects = objects
+        .map(({ Normal }) => Normal)
+        .filter(Boolean)
+        .filter(({ data }) => !data.Move?.type?.GasCoin)
 
       let batches = 0
 
