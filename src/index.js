@@ -9,8 +9,7 @@ import chokidar from 'chokidar'
 import sui_bcs from './generated/0x2.js'
 import standard_bcs from './generated/0x1.js'
 import { get_local_checkpoints } from './get_local_checkpoints.js'
-import { SuiAddress } from './generated/bcs-sui.js'
-import { CheckpointData } from './bcs-checkpoints.js'
+import { SuiAddress, CheckpointData } from './generated/bcs-sui.js'
 
 function mapper(object_source, mappings) {
   const map_recursive = obj => {
@@ -41,17 +40,17 @@ function parse_content(struct, { contents, known_types }) {
     address,
     module,
     name,
-    type_params = [],
+    type_args = [],
     $kind,
     ...rest
   }) {
-    if ($kind && $kind !== 'Struct') {
-      switch ($kind) {
-        case 'Address':
+    if ($kind && $kind.toLowerCase() !== 'struct') {
+      switch ($kind.toLowerCase()) {
+        case 'address':
           return SuiAddress
-        case 'Vector':
-          if (rest.Vector.Struct) return find_nested_bcs(rest.Vector.Struct)
-          return bcs.vector(bcs[rest.Vector.$kind.toLowerCase()])
+        case 'vector':
+          if (rest.vector.struct) return find_nested_bcs(rest.vector.struct)
+          return bcs.vector(bcs[rest.vector.$kind.toLowerCase()]())
         default:
           return bcs[$kind.toLowerCase()]()
       }
@@ -61,10 +60,10 @@ function parse_content(struct, { contents, known_types }) {
 
     if (!current_bcs) return
 
-    if (type_params.length) {
-      const nested_bcs = type_params.map(({ Struct, ...rest }) => {
-        if (!Struct) return find_nested_bcs(rest)
-        return find_nested_bcs(Struct)
+    if (type_args.length) {
+      const nested_bcs = type_args.map(({ struct, ...rest }) => {
+        if (!struct) return find_nested_bcs(rest)
+        return find_nested_bcs(struct)
       })
 
       if (nested_bcs.some(b => !b)) return
@@ -77,28 +76,30 @@ function parse_content(struct, { contents, known_types }) {
   const found_bcs = find_nested_bcs(struct)
 
   if (!found_bcs?.parse) return
-
-  const parsed = found_bcs.parse(new Uint8Array(contents))
-
-  const { id: { id: { bytes = undefined } = {} } = {}, ...rest } = mapper(
-    parsed,
-    {
-      bytes: b => {
-        if (Array.isArray(b)) return Buffer.from(b).toString('utf8')
-        return b
+  try {
+    const parsed = found_bcs.parse(new Uint8Array(contents))
+    const { id: { id: { bytes = undefined } = {} } = {}, ...rest } = mapper(
+      parsed,
+      {
+        bytes: b => {
+          if (Array.isArray(b)) return Buffer.from(b).toString('utf8')
+          return b
+        },
       },
-    },
-  )
-
-  return {
-    ...(bytes && { id: `0x${bytes}` }),
-    ...Object.fromEntries(
-      Object.entries(rest).map(([key, value]) => {
-        // @ts-ignore
-        if (value.bytes) return [key, value.bytes]
-        return [key, value]
-      }),
-    ),
+    )
+    return {
+      ...(bytes && { id: `0x${bytes}` }),
+      ...Object.fromEntries(
+        Object.entries(rest).map(([key, value]) => {
+          // @ts-ignore
+          if (value.bytes) return [key, value.bytes]
+          return [key, value]
+        }),
+      ),
+    }
+  } catch (error) {
+    console.dir({ found_bcs }, { depth: Infinity })
+    throw error
   }
 }
 
@@ -130,20 +131,21 @@ export function format_objects(objects, known_types, get_object_digest) {
       type: {
         Other,
         // @ts-ignore
-        Other: { address, module, name, type_params = [] } = {},
+        Other: { address, module, name, type_args = [] } = {},
       },
       has_public_transfer,
       contents,
       version,
     } = Move
 
-    const parsed_type_params = parse_type_param(type_params)
+    const parsed_type_args = parse_type_args(type_args)
 
     if (Other) {
       const parsed_content = parse_content(Other, {
         contents,
         known_types,
       })
+
       const digest = parsed_content
         ? get_object_digest(parsed_content.id)
         : null
@@ -155,8 +157,8 @@ export function format_objects(objects, known_types, get_object_digest) {
         digest,
         owner,
         previous_transaction,
-        ...(type_params?.length && {
-          type_params: `${address}::${module}::${name}<${parsed_type_params}>`,
+        ...(type_args?.length && {
+          type_args: `${address}::${module}::${name}<${parsed_type_args}>`,
         }),
         contents: parsed_content ?? contents,
       }
@@ -171,8 +173,8 @@ function format_events(events, known_types) {
     .map(event => {
       const { type, package_id, transaction_module, sender, contents } = event
 
-      const has_sub_type = type.type_params?.length
-      const parsed_type = parse_type_param(type.type_params)
+      const has_sub_type = type.type_args?.length
+      const parsed_type = parse_type_args(type.type_args)
       const event_type = `${type.address}::${type.module}::${type.name}${has_sub_type ? `<${parsed_type}>` : ''}`
       const base_config = known_types[type.address]?.[type.module]?.[type.name]
       const bcs = has_sub_type ? base_config?.(parsed_type) : base_config
@@ -204,20 +206,19 @@ function format_events(events, known_types) {
     .filter(Boolean)
 }
 
-function parse_type_param(params = []) {
+function parse_type_args(params = []) {
   if (!params.length) return ''
-  return params.reduce((result, { Struct, $kind }) => {
-    if (!Struct) return `${result}, ${$kind.toLowerCase()}`
-    const { address, module, name, type_params = [] } = Struct
+  return params.reduce((result, { struct, $kind }) => {
+    if (!struct) return `${result}, ${$kind.toLowerCase()}`
+    const { address, module, name, type_args = [] } = struct
     const typename = `${address}::${module}::${name}`
 
     if (!result)
-      if (type_params.length)
-        return `${typename}<${parse_type_param(type_params)}>`
+      if (type_args.length) return `${typename}<${parse_type_args(type_args)}>`
       else return typename
 
-    if (type_params.length)
-      return `${result}, ${typename}<${parse_type_param(type_params)}>`
+    if (type_args.length)
+      return `${result}, ${typename}<${parse_type_args(type_args)}>`
     return `${result}, ${typename}`
   }, '')
 }
