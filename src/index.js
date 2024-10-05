@@ -49,7 +49,13 @@ function parse_content(struct, { contents, known_types }) {
         case 'address':
           return SuiAddress
         case 'vector':
-          if (rest.vector.struct) return find_nested_bcs(rest.vector.struct)
+          if (rest.vector.struct) {
+            const nested = find_nested_bcs(rest.vector.struct)
+            return nested ? bcs.vector(nested) : null
+          }
+          if (rest.vector.$kind === 'address') {
+            return bcs.vector(SuiAddress)
+          }
           return bcs.vector(bcs[rest.vector.$kind.toLowerCase()]())
         default:
           return bcs[$kind.toLowerCase()]()
@@ -98,7 +104,8 @@ function parse_content(struct, { contents, known_types }) {
       ),
     }
   } catch (error) {
-    console.dir({ found_bcs }, { depth: Infinity })
+    console.log('--- error while parsing content ---')
+    console.dir({ found_bcs, contents }, { depth: Infinity })
     throw error
   }
 }
