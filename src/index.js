@@ -60,7 +60,6 @@ function parse_content(struct, { contents, known_types }) {
             const nested = find_nested_bcs(rest.vector[rest.vector.$kind])
             return nested ? bcs.vector(nested) : null
           }
-          console.dir({ rest }, { depth: Infinity })
           return bcs.vector(bcs[rest.vector.$kind.toLowerCase()]())
         default:
           return bcs[$kind.toLowerCase()]()
