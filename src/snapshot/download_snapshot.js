@@ -2,6 +2,9 @@ import { existsSync } from 'fs'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 
 import { Manifest } from '../bcs-checkpoints.js'
+import logger from '../logger.js'
+
+const log = logger(import.meta)
 
 async function fetch_manifest({ network, epoch }) {
   const response = await fetch(
@@ -24,8 +27,9 @@ async function fetch_object({
   const ref_file_path = `${obj_folder}/epoch_${epoch}/${bucket_num}_${part_num}.ref`
 
   if (existsSync(file_path)) {
-    console.log(
-      `[snapshot] File ${bucket_num}_${part_num}.obj already exists locally.`,
+    log.info(
+      { file: `${bucket_num}_${part_num}.obj` },
+      `[snapshot] File already exists locally.`,
     )
     const { buffer } = await readFile(file_path)
     if (include_refs) {
@@ -35,7 +39,10 @@ async function fetch_object({
     return { buffer }
   }
 
-  console.log(`[snapshot] Downloading object & ref ${bucket_num}_${part_num}`)
+  log.info(
+    { object: `${bucket_num}_${part_num}` },
+    `[snapshot] Downloading object & ref`,
+  )
   const response = await fetch(
     `https://formal-snapshot.${network}.sui.io/epoch_${epoch}/${bucket_num}_${part_num}.obj`,
   )
@@ -52,7 +59,7 @@ async function fetch_object({
     await mkdir(`${obj_folder}/epoch_${epoch}`, { recursive: true })
     await writeFile(file_path, new Uint8Array(buffer))
     if (include_refs) await writeFile(ref_file_path, new Uint8Array(ref_buffer))
-    console.log(`[snapshot] Saved files ${file_path}`)
+    log.info({ file_path }, '[snapshot] file saved')
   }
 
   return { buffer, ref_buffer }
@@ -81,7 +88,7 @@ export async function* download_snapshot({
   obj_folder,
   include_refs = false,
 }) {
-  console.log('[snapshot] Downloading snapshot manifest..')
+  log.info('[snapshot] Downloading snapshot manifest..')
   const manifest = parse_manifest(await fetch_manifest({ network, epoch }))
   const {
     V1: { file_metadata, ...rest },
@@ -97,13 +104,13 @@ export async function* download_snapshot({
     },
   )
 
-  console.dir(
+  log.debug(
     {
       ...rest,
       files: object_metadata.length,
       concurrent_downloads,
     },
-    { depth: Infinity },
+    'snapshot manifest',
   )
 
   while (object_metadata.length) {

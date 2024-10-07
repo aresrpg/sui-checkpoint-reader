@@ -10,6 +10,9 @@ import sui_bcs from './generated/0x2.js'
 import standard_bcs from './generated/0x1.js'
 import { get_local_checkpoints } from './get_local_checkpoints.js'
 import { SuiAddress, CheckpointData } from './generated/bcs-sui.js'
+import logger from './logger.js'
+
+const log = logger(import.meta)
 
 function mapper(object_source, mappings) {
   const map_recursive = obj => {
@@ -104,8 +107,8 @@ function parse_content(struct, { contents, known_types }) {
       ),
     }
   } catch (error) {
-    console.log('--- error while parsing content ---')
-    console.dir({ found_bcs, contents }, { depth: Infinity })
+    log.error('Unable to parse content')
+    log.error({ found_bcs, contents }, error)
     throw error
   }
 }
@@ -245,7 +248,7 @@ export async function read_checkpoints({
   object_filter = () => true,
   checkpoints_folder = '',
   process_checkpoint = async (data, index) => {
-    console.log('[indexer] process_checkpoint:', index)
+    log.info({ index }, '[indexer] process_checkpoint')
   },
   cleanup_checkpoints = false,
   local_files_only = false,
@@ -267,7 +270,10 @@ export async function read_checkpoints({
     : null
 
   function log_update(index, msg) {
-    console.log(`-- [cache size: ${known_checkpoints.size}]`, msg, index)
+    log.debug(
+      { known_checkpoints_size: known_checkpoints.size, msg, index },
+      'cache',
+    )
   }
 
   const processing_state = {
@@ -294,13 +300,13 @@ export async function read_checkpoints({
 
   // Once we caught up, we start watching for file changes
   function start_listening_for_local_checkpoints() {
-    console.log('[local] starting to watch for local checkpoints')
+    log.info('[local] starting to watch for local checkpoints')
     processing_settings.watcher = chokidar.watch(checkpoints_folder, {
       persistent: true,
     })
     processing_settings.watcher.on('add', async file_path => {
       // if we detect local checkpoints
-      // console.log('[system] detected new checkpoint:', file_path)
+      log.debug({ file_path }, '[system] detected new checkpoint:')
       const file_number = +path.basename(file_path, '.chk')
 
       processing_state.last_detected = file_number
@@ -335,13 +341,16 @@ export async function read_checkpoints({
     }
 
     if (should_keep_downloading(sync_settings.current_checkpoint))
-      console.log('[system] starting to download checkpoints', {
-        from,
-        to:
-          lowest_known_checkpoint == null
-            ? to
-            : Math.min(to, lowest_known_checkpoint),
-      })
+      log.info(
+        {
+          from,
+          to:
+            lowest_known_checkpoint == null
+              ? to
+              : Math.min(to, lowest_known_checkpoint),
+        },
+        '[system] starting to download checkpoints',
+      )
     else start_listening_for_local_checkpoints()
 
     while (should_keep_downloading(sync_settings.current_checkpoint)) {
@@ -377,13 +386,7 @@ export async function read_checkpoints({
         const end_time = performance.now()
         const elapsed = ((end_time - start_time) / 1000).toFixed(2)
 
-        console.log(
-          '[remote] downloaded',
-          concurrent_downloads,
-          'checkpoints in',
-          +elapsed,
-          's',
-        )
+        log.info({ concurrent_downloads, elapsed }, '[remote] downloaded')
 
         sync_settings.current_checkpoint += concurrent_downloads
 
@@ -391,9 +394,9 @@ export async function read_checkpoints({
         if (!sync_settings.catching_up && checkpoints_folder)
           start_listening_for_local_checkpoints()
       } catch (error) {
-        console.error(
-          `[remote] Some checkpoints couldn't be downloaded, retrying in 2s`,
+        log.error(
           error,
+          `[remote] Some checkpoints couldn't be downloaded, retrying in 2s`,
         )
         await setTimeout(2000)
         sync_settings.catching_up = true
@@ -402,7 +405,7 @@ export async function read_checkpoints({
   }
 
   async function start_cleaning_up_checkpoints() {
-    console.log('[system] starting to clean up old checkpoints')
+    log.info('[system] starting to clean up old checkpoints')
     try {
       // eslint-disable-next-line no-unused-vars
       for await (const _ of setInterval(5000, true, {
@@ -426,7 +429,7 @@ export async function read_checkpoints({
   }
 
   async function start_processing_checkpoints() {
-    console.log('[system] starting to process checkpoints')
+    log.info('[system] starting to process checkpoints')
     while (processing_settings.current_checkpoint <= to) {
       const checkpoint_buffer = known_checkpoints.get(
         processing_settings.current_checkpoint,
@@ -446,19 +449,21 @@ export async function read_checkpoints({
           await process_checkpoint(parsed_checkpoint, current_checkpoint_number)
           processing_settings.current_checkpoint++
         } else {
-          // console.warn(
-          //   'missing checkpoint:',
-          //   processing_settings.current_checkpoint,
-          //   'retrying in 5s',
-          // )
+          log.warn(
+            {
+              current_checkpoint_number: processing_settings.current_checkpoint,
+            },
+            'missing checkpoint, retrying in 5s',
+          )
           await setTimeout(2000)
         }
       } catch (error) {
-        console.error(
+        log.fatal(
+          {
+            current_checkpoint_number,
+            error,
+          },
           '/!\\ Error while processing checkpoint, this should never happen and is an internal problem of the sui-checkpoint-reader lib:',
-          '\ncurrent checkpoint:',
-          current_checkpoint_number,
-          error,
         )
         process.exit(1)
       }

@@ -3,9 +3,12 @@ import { ClassicLevel } from 'classic-level'
 import { format_objects, premap_transaction } from '../index.js'
 import sui_bcs from '../generated/0x2.js'
 import standard_bcs from '../generated/0x1.js'
+import logger from '../logger.js'
 
 import { download_snapshot } from './download_snapshot.js'
 import { parse_objects, parse_reference } from './parse_object.js'
+
+const log = logger(import.meta)
 
 export function get_db(db_folder = './sui-formal-objects') {
   return new ClassicLevel(db_folder)
@@ -88,9 +91,14 @@ export async function download_and_store_objects({
           )
         }
 
-        console.log(
-          `[${bucket_num}:${part_num}]`,
-          `> parsed objects | batch ${++batches} | saved ${batch.length} objects`,
+        log.info(
+          {
+            bucket_num,
+            part_num,
+            batch: ++batches,
+            batch_length: batch.length,
+          },
+          'parsed objects',
         )
       }
     }

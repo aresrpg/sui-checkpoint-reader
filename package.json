@@ -33,10 +33,12 @@
     "access": "public"
   },
   "dependencies": {
+    "@logtail/pino": "^0.5.0",
     "@mongodb-js/zstd": "^1.2.2",
     "@mysten/bcs": "^1.1.0",
     "chokidar": "^4.0.1",
     "classic-level": "^1.4.1",
+    "pino": "^9.4.0",
     "yaml": "^2.5.1"
   },
   "devDependencies": {
