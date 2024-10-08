@@ -460,12 +460,10 @@ export async function read_checkpoints({
           await setTimeout(2000)
         }
       } catch (error) {
-        log.fatal(
-          {
-            current_checkpoint_number,
-            error,
-          },
-          '/!\\ Error while processing checkpoint, this should never happen and is an internal problem of the sui-checkpoint-reader lib:',
+        log.fatal(error)
+        log.warn(
+          { current_checkpoint_number },
+          `/!\\ Error while processing checkpoint, this should never happen and is an internal problem of the sui-checkpoint-reader lib:`,
         )
         process.exit(1)
       }
