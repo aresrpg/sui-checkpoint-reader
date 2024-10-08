@@ -57,7 +57,7 @@ function parse_content(struct, { contents, known_types }) {
             rest.vector.$kind === 'address' ||
             rest.vector.$kind === 'vector'
           ) {
-            const nested = find_nested_bcs(rest.vector[rest.vector.$kind])
+            const nested = find_nested_bcs(rest.vector)
             return nested ? bcs.vector(nested) : null
           }
           return bcs.vector(bcs[rest.vector.$kind.toLowerCase()]())
@@ -109,7 +109,8 @@ function parse_content(struct, { contents, known_types }) {
     }
   } catch (error) {
     log.error('Unable to parse content')
-    log.error({ found_bcs, contents }, error)
+    console.dir({ found_bcs, contents, struct }, { depth: Infinity })
+    log.error({ found_bcs, contents, struct }, error)
     throw error
   }
 }
