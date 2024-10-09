@@ -399,7 +399,7 @@ export async function read_checkpoints({
         if (!sync_settings.catching_up && checkpoints_folder)
           start_listening_for_local_checkpoints()
       } catch (error) {
-        log.error(
+        log.warn(
           error,
           `[remote] Some checkpoints couldn't be downloaded, retrying in 2s`,
         )
