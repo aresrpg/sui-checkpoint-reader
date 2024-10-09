@@ -271,13 +271,6 @@ export async function read_checkpoints({
     ? +path.basename(lowest_known_checkpoint_path, '.chk')
     : null
 
-  function log_update(index, msg) {
-    log.debug(
-      { known_checkpoints_size: known_checkpoints.size, msg, index },
-      'cache',
-    )
-  }
-
   const processing_state = {
     cached: 0,
     last_detected: 0,
@@ -356,8 +349,17 @@ export async function read_checkpoints({
     else start_listening_for_local_checkpoints()
 
     while (should_keep_downloading(sync_settings.current_checkpoint)) {
+      await setTimeout(1) // let it breathe
       try {
         const start_time = performance.now()
+
+        log.debug(
+          {
+            known_checkpoints_size: known_checkpoints.size,
+            concurrent_downloads,
+          },
+          '[<] downloading checkpoints',
+        )
 
         await Promise.all(
           Array.from({ length: concurrent_downloads }, async (_, i) => {
@@ -369,8 +371,6 @@ export async function read_checkpoints({
               sync_settings.catching_up = false
               return
             }
-
-            log_update(current_checkpoint_number, '[<] downloading checkpoint:')
 
             const buffer = await get_remote_checkpoint(
               current_checkpoint_number,
@@ -388,7 +388,10 @@ export async function read_checkpoints({
         const end_time = performance.now()
         const elapsed = ((end_time - start_time) / 1000).toFixed(2)
 
-        log.info({ concurrent_downloads, elapsed }, '[remote] downloaded')
+        log.info(
+          { concurrent_downloads, elapsed: +elapsed },
+          '[remote] downloaded',
+        )
 
         sync_settings.current_checkpoint += concurrent_downloads
 
@@ -417,9 +420,11 @@ export async function read_checkpoints({
         const files = get_local_checkpoints(checkpoints_folder).map(
           f => +path.basename(f, '.chk'),
         )
+
+        log.debug({ files: files.length }, '[x] cleaning up checkpoint')
+
         for (const file of files) {
           if (file < processing_settings.current_checkpoint) {
-            log_update(file, '[x] cleaning up checkpoint:')
             unlinkSync(path.join(checkpoints_folder, `${file}.chk`))
             processing_state.cached++
           }
@@ -441,7 +446,7 @@ export async function read_checkpoints({
 
       try {
         if (checkpoint_buffer) {
-          log_update(current_checkpoint_number, '[>] processing checkpoint:')
+          log.info({ current_checkpoint_number }, '[>] processing checkpoint')
           const parsed_checkpoint = read_checkpoint(
             checkpoint_buffer,
             known_types,
