@@ -437,6 +437,9 @@ export async function read_checkpoints({
 
   async function start_processing_checkpoints() {
     log.info('[system] starting to process checkpoints')
+
+    let index = 0
+
     while (processing_settings.current_checkpoint <= to) {
       const checkpoint_buffer = known_checkpoints.get(
         processing_settings.current_checkpoint,
@@ -446,7 +449,8 @@ export async function read_checkpoints({
 
       try {
         if (checkpoint_buffer) {
-          log.info({ current_checkpoint_number }, '[>] processing checkpoint')
+          if (++index % 50 === 0)
+            log.info({ current_checkpoint_number }, '[>] processing checkpoint')
           const parsed_checkpoint = read_checkpoint(
             checkpoint_buffer,
             known_types,
