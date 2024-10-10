@@ -496,12 +496,7 @@ export async function read_checkpoints({
           await process_checkpoint(parsed_checkpoint, current_checkpoint_number)
           processing_settings.current_checkpoint++
         } else {
-          log.warn(
-            {
-              current_checkpoint_number: processing_settings.current_checkpoint,
-            },
-            'missing checkpoint, retrying in 100ms',
-          )
+          // checkpoint not found, we wait a bit
           await setTimeout(100)
         }
       } catch (error) {
