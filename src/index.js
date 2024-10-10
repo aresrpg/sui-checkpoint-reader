@@ -292,17 +292,6 @@ export async function read_checkpoints({
       log.error(error)
     })
 
-  const processing_state = {
-    cached: 0,
-    last_detected: 0,
-    downloaded: 0,
-    cleaned: 0,
-    processing: 0,
-    downloads_per_second: 0,
-    processing_per_second: 0,
-    elapsed: 0,
-  }
-
   Object.assign(known_types, {
     '0x0000000000000000000000000000000000000000000000000000000000000002':
       sui_bcs,
@@ -323,8 +312,6 @@ export async function read_checkpoints({
     processing_settings.watcher.on('add', async file_path => {
       // if we detect local checkpoints
       const file_number = +path.basename(file_path, '.chk')
-
-      processing_state.last_detected = file_number
 
       // if in configured range, we add it to the known checkpoints
       if (file_number >= from && file_number <= to) {
@@ -404,11 +391,6 @@ export async function read_checkpoints({
           }),
         )
 
-        processing_state.downloaded += Math.min(
-          concurrent_downloads,
-          to - sync_settings.current_checkpoint,
-        )
-
         const end_time = performance.now()
         const elapsed = ((end_time - start_time) / 1000).toFixed(2)
 
@@ -451,7 +433,6 @@ export async function read_checkpoints({
         for (const file of files) {
           if (file < processing_settings.current_checkpoint) {
             unlinkSync(path.join(checkpoints_folder, `${file}.chk`))
-            processing_state.cached++
           }
         }
       }
@@ -512,7 +493,6 @@ export async function read_checkpoints({
             object_filter,
             data,
           })
-          processing_state.processing = current_checkpoint_number
           await process_checkpoint(parsed_checkpoint, current_checkpoint_number)
           processing_settings.current_checkpoint++
         } else {
@@ -520,9 +500,9 @@ export async function read_checkpoints({
             {
               current_checkpoint_number: processing_settings.current_checkpoint,
             },
-            'missing checkpoint, retrying in 5s',
+            'missing checkpoint, retrying in 100ms',
           )
-          await setTimeout(2000)
+          await setTimeout(100)
         }
       } catch (error) {
         log.fatal(error)
