@@ -395,7 +395,12 @@ export async function read_checkpoints({
         const elapsed = ((end_time - start_time) / 1000).toFixed(2)
 
         log.info(
-          { concurrent_downloads, elapsed: +elapsed },
+          {
+            concurrent_downloads,
+            elapsed: +elapsed,
+            from: sync_settings.current_checkpoint - concurrent_downloads,
+            to: sync_settings.current_checkpoint,
+          },
           '[remote] downloaded',
         )
 
@@ -428,7 +433,10 @@ export async function read_checkpoints({
           f => +path.basename(f, '.chk'),
         )
 
-        log.debug({ files: files.length }, '[x] cleaning up checkpoint')
+        log.debug(
+          { files: files.length, from: files[0], to: files.at(-1) },
+          '[x] cleaning up checkpoint',
+        )
 
         for (const file of files) {
           if (file < processing_settings.current_checkpoint) {
@@ -445,6 +453,7 @@ export async function read_checkpoints({
     log.info('[system] starting to process checkpoints')
 
     let index = 0
+    let index_missing = 0
 
     async function get_valid_checkpoint_buffer() {
       const current_checkpoint_number = processing_settings.current_checkpoint
@@ -458,7 +467,11 @@ export async function read_checkpoints({
 
       if (encoding !== BLOB_ENCODING_BCS) {
         log.warn(
-          { encoding, expected_encoding: BLOB_ENCODING_BCS },
+          {
+            encoding,
+            current_checkpoint_number,
+            expected_encoding: BLOB_ENCODING_BCS,
+          },
           'Invalid encoding detected, is the checkpoint file corrupted?',
         )
         // sometimes the encoding is wrong, it happens somehow when downloading snapshots and I have no idea why
@@ -486,6 +499,7 @@ export async function read_checkpoints({
 
       try {
         if (checkpoint_buffer) {
+          index_missing = 0 // reset as we only want to detect if its stuck
           if (++index % 4 === 0)
             log.info({ current_checkpoint_number }, '[>] processing checkpoint')
           const parsed_checkpoint = read_checkpoint({
@@ -497,6 +511,11 @@ export async function read_checkpoints({
           processing_settings.current_checkpoint++
         } else {
           // checkpoint not found, we wait a bit
+          if (++index_missing % 10 === 0)
+            log.debug(
+              { current_checkpoint_number },
+              '[~] waiting for checkpoint',
+            )
           await setTimeout(100)
         }
       } catch (error) {
