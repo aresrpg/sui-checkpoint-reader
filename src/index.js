@@ -416,6 +416,7 @@ export async function read_checkpoints({
       for await (const _ of setInterval(5000, true, {
         signal: controller.signal,
       })) {
+        if (sync_settings.catching_up) continue
         // check all checkpoints files, remove those below the currently processed
         const files = get_local_checkpoints(checkpoints_folder).map(
           f => +path.basename(f, '.chk'),
