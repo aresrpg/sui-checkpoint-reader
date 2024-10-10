@@ -11,6 +11,7 @@ import standard_bcs from './generated/0x1.js'
 import { get_local_checkpoints } from './get_local_checkpoints.js'
 import { SuiAddress, CheckpointData } from './generated/bcs-sui.js'
 import logger from './logger.js'
+import { async_iterable } from './async_iterable.js'
 
 const log = logger(import.meta)
 
@@ -265,11 +266,27 @@ export async function read_checkpoints({
     watcher: null,
   }
   const known_checkpoints = new Map()
-  const existing_files = get_local_checkpoints(checkpoints_folder)
-  const [lowest_known_checkpoint_path] = existing_files
-  const lowest_known_checkpoint = lowest_known_checkpoint_path
-    ? +path.basename(lowest_known_checkpoint_path, '.chk')
-    : null
+
+  function get_lowest_known_checkpoint() {
+    const existing_files = get_local_checkpoints(checkpoints_folder)
+    const [lowest_known_checkpoint_path] = existing_files
+
+    return lowest_known_checkpoint_path
+      ? +path.basename(lowest_known_checkpoint_path, '.chk')
+      : null
+  }
+
+  let lowest_known_checkpoint = get_lowest_known_checkpoint()
+
+  async_iterable
+    .from(setInterval(1000 * 10, null, { signal: controller.signal }))
+    .for_each(() => {
+      const result = get_lowest_known_checkpoint()
+      if (result) lowest_known_checkpoint = result
+    })
+    .catch(error => {
+      log.error(error)
+    })
 
   const processing_state = {
     cached: 0,
@@ -301,7 +318,6 @@ export async function read_checkpoints({
     })
     processing_settings.watcher.on('add', async file_path => {
       // if we detect local checkpoints
-      log.debug({ file_path }, '[system] detected new checkpoint:')
       const file_number = +path.basename(file_path, '.chk')
 
       processing_state.last_detected = file_number
