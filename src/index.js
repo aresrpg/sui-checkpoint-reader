@@ -440,22 +440,53 @@ export async function read_checkpoints({
 
     let index = 0
 
-    while (processing_settings.current_checkpoint <= to) {
-      const checkpoint_buffer = known_checkpoints.get(
-        processing_settings.current_checkpoint,
-      )
+    async function get_valid_checkpoint_buffer() {
       const current_checkpoint_number = processing_settings.current_checkpoint
+      const checkpoint_buffer = known_checkpoints.get(current_checkpoint_number)
+
+      if (!checkpoint_buffer) return {}
+
       known_checkpoints.delete(current_checkpoint_number)
+
+      const { encoding, data } = read_blob(checkpoint_buffer)
+
+      if (encoding !== BLOB_ENCODING_BCS) {
+        log.warn(
+          { encoding, expected_encoding: BLOB_ENCODING_BCS },
+          'Invalid encoding detected, is the checkpoint file corrupted?',
+        )
+        // sometimes the encoding is wrong, it happens somehow when downloading snapshots and I have no idea why
+        // replaying (redownloading) the checkpoint will work
+        if (local_files_only) {
+          // well here we're fucked
+          throw new Error(
+            `The checkpoint file has an encoding of ${encoding} instead of ${BLOB_ENCODING_BCS}, is the file corrupted ?`,
+          )
+        }
+
+        sync_settings.current_checkpoint =
+          current_checkpoint_number - concurrent_downloads
+
+        await setTimeout(100)
+        return get_valid_checkpoint_buffer()
+      }
+
+      return { checkpoint_buffer, current_checkpoint_number, data }
+    }
+
+    while (processing_settings.current_checkpoint <= to) {
+      const { checkpoint_buffer, current_checkpoint_number, data } =
+        await get_valid_checkpoint_buffer()
 
       try {
         if (checkpoint_buffer) {
           if (++index % 50 === 0)
             log.info({ current_checkpoint_number }, '[>] processing checkpoint')
-          const parsed_checkpoint = read_checkpoint(
-            checkpoint_buffer,
+          const parsed_checkpoint = read_checkpoint({
             known_types,
             object_filter,
-          )
+            data,
+          })
           processing_state.processing = current_checkpoint_number
           await process_checkpoint(parsed_checkpoint, current_checkpoint_number)
           processing_settings.current_checkpoint++
@@ -514,18 +545,15 @@ const BLOB_ENCODING_BCS = 1
 // https://github.com/MystenLabs/sui/blob/testnet-v1.28.3/crates/sui-storage/src/blob.rs#L78-L85
 function read_blob(buffer) {
   const view = new Uint8Array(buffer)
+  const [encoding] = view
   return {
-    encoding: view[0],
+    encoding,
     // TODO: subarray seems to cause an issue with the bcs library
     data: view.slice(1),
   }
 }
 
-function read_checkpoint(buffer, known_types, object_filter) {
-  const { encoding, data } = read_blob(buffer)
-  if (encoding !== BLOB_ENCODING_BCS)
-    throw new Error(`unsupported encoding ${encoding}`)
-
+function read_checkpoint({ known_types, object_filter, data }) {
   const { checkpoint_summary, checkpoint_contents, transactions } =
     CheckpointData.parse(data)
 
