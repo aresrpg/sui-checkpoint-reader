@@ -271,9 +271,13 @@ export async function read_checkpoints({
     const existing_files = get_local_checkpoints(checkpoints_folder)
     const [lowest_known_checkpoint_path] = existing_files
 
-    return lowest_known_checkpoint_path
+    const result = lowest_known_checkpoint_path
       ? +path.basename(lowest_known_checkpoint_path, '.chk')
       : null
+
+    log.trace({ lowest_known_checkpoint: result }, 'Lowest known checkpoint')
+
+    return result
   }
 
   let lowest_known_checkpoint = get_lowest_known_checkpoint()
@@ -385,6 +389,10 @@ export async function read_checkpoints({
             // if the count reaches the lowest known checkpoint or the target checkpoint, we stop
             if (!should_keep_downloading(current_checkpoint_number)) {
               sync_settings.catching_up = false
+              log.info(
+                { caught_up_at: current_checkpoint_number },
+                '[system] caught up with the latest checkpoint',
+              )
               return
             }
 
