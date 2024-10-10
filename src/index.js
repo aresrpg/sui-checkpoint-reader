@@ -486,7 +486,7 @@ export async function read_checkpoints({
 
       try {
         if (checkpoint_buffer) {
-          if (++index % 50 === 0)
+          if (++index % 4 === 0)
             log.info({ current_checkpoint_number }, '[>] processing checkpoint')
           const parsed_checkpoint = read_checkpoint({
             known_types,
