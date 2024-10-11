@@ -459,7 +459,7 @@ export async function read_checkpoints({
       const current_checkpoint_number = processing_settings.current_checkpoint
       const checkpoint_buffer = known_checkpoints.get(current_checkpoint_number)
 
-      if (!checkpoint_buffer) return {}
+      if (!checkpoint_buffer) return { current_checkpoint_number }
 
       known_checkpoints.delete(current_checkpoint_number)
 
@@ -481,6 +481,21 @@ export async function read_checkpoints({
           throw new Error(
             `The checkpoint file has an encoding of ${encoding} instead of ${BLOB_ENCODING_BCS}, is the file corrupted ?`,
           )
+        }
+
+        // if the corrupted data is a file exported from the node
+        // then we simply take it from remote because why the fuck would the node export a corrupted file?
+        // but I had this issue :/
+        if (!sync_settings.catching_up) {
+          log.warn(
+            { current_checkpoint_number },
+            'It seems the node exported a corrupted checkpoint file, downloading from remote!',
+          )
+          known_checkpoints.set(
+            current_checkpoint_number,
+            await get_remote_checkpoint(current_checkpoint_number),
+          )
+          return get_valid_checkpoint_buffer()
         }
 
         sync_settings.current_checkpoint =
