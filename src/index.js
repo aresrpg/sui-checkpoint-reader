@@ -526,11 +526,16 @@ export async function read_checkpoints({
           processing_settings.current_checkpoint++
         } else {
           // checkpoint not found, we wait a bit
-          if (++index_missing % 10 === 0)
+          if (++index_missing % 10 === 0) {
             log.debug(
               { current_checkpoint_number },
               '[~] waiting for checkpoint',
             )
+            known_checkpoints.set(
+              current_checkpoint_number,
+              await get_remote_checkpoint(current_checkpoint_number),
+            )
+          }
           await setTimeout(100)
         }
       } catch (error) {
