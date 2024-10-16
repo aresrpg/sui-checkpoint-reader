@@ -531,10 +531,24 @@ export async function read_checkpoints({
               { current_checkpoint_number },
               '[~] waiting for checkpoint',
             )
+
+            // since it keeps failing, force download the current
             known_checkpoints.set(
               current_checkpoint_number,
               await get_remote_checkpoint(current_checkpoint_number),
             )
+
+            // then flush all existing checkpoints
+            const recent_existing_files =
+              get_local_checkpoints(checkpoints_folder)
+            for (const file of recent_existing_files) {
+              if (file >= from && file <= to) {
+                const buffer = readFileSync(
+                  path.join(checkpoints_folder, `${file}.chk`),
+                )
+                known_checkpoints.set(file, buffer)
+              }
+            }
           }
           await setTimeout(100)
         }
