@@ -541,6 +541,16 @@ export async function read_checkpoints({
             // then flush all existing checkpoints
             const recent_existing_files =
               get_local_checkpoints(checkpoints_folder)
+
+            log.debug(
+              {
+                recent_existing_files: recent_existing_files.length,
+                from: recent_existing_files[0],
+                to: recent_existing_files.at(-1),
+              },
+              'There are existing checkpoints files',
+            )
+
             for (const file of recent_existing_files) {
               if (file >= from && file <= to) {
                 const buffer = readFileSync(
