@@ -269,15 +269,11 @@ export async function read_checkpoints({
 
   function get_lowest_known_checkpoint() {
     const existing_files = get_local_checkpoints(checkpoints_folder)
-    const [lowest_known_checkpoint_path] = existing_files
+    const [lowest_known_checkpoint] = existing_files
 
-    const result = lowest_known_checkpoint_path
-      ? +path.basename(lowest_known_checkpoint_path, '.chk')
-      : null
+    log.trace({ lowest_known_checkpoint }, 'Lowest known checkpoint')
 
-    log.trace({ lowest_known_checkpoint: result }, 'Lowest known checkpoint')
-
-    return result
+    return lowest_known_checkpoint
   }
 
   let lowest_known_checkpoint = get_lowest_known_checkpoint()
@@ -429,9 +425,7 @@ export async function read_checkpoints({
       })) {
         if (sync_settings.catching_up) continue
         // check all checkpoints files, remove those below the currently processed
-        const files = get_local_checkpoints(checkpoints_folder).map(
-          f => +path.basename(f, '.chk'),
-        )
+        const files = get_local_checkpoints(checkpoints_folder)
 
         log.debug(
           { files: files.length, from: files[0], to: files.at(-1) },
