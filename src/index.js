@@ -439,7 +439,7 @@ export async function read_checkpoints({
       }
     } catch (error) {
       if (error.name !== 'AbortError') throw error
-      log.fatal(error, 'Cleaning up checkpoints failed')
+      log.error(error, 'Cleaning up checkpoints failed')
     }
   }
 

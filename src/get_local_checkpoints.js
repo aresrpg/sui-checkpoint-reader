@@ -1,8 +1,14 @@
 import { readdirSync, statSync, existsSync } from 'fs'
 import path from 'path'
 
+import logger from './logger.js'
+
+const log = logger(import.meta)
+
 export function get_local_checkpoints(checkpoints_folder) {
   const file_paths = []
+
+  log.info({ checkpoints_folder }, 'Reading local checkpoints')
 
   const read_directory = directory => {
     const items = readdirSync(directory)
@@ -19,6 +25,8 @@ export function get_local_checkpoints(checkpoints_folder) {
   }
 
   if (existsSync(checkpoints_folder)) read_directory(checkpoints_folder)
+
+  log.info({ file_paths: file_paths.length }, 'Found files')
 
   return file_paths
     .map(file_path => +path.basename(file_path, '.chk'))
