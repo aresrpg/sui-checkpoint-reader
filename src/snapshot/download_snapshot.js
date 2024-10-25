@@ -115,38 +115,45 @@ export async function* download_snapshot({
 
   while (object_metadata.length) {
     const current_batch = object_metadata.splice(0, concurrent_downloads)
-    const objects = await Promise.all(
-      current_batch.map(
-        async ({
-          bucket_num,
-          part_num,
-          file_compression,
-          file_type,
-          sha3_digest,
-        }) => {
-          const { buffer, ref_buffer } = await fetch_object({
-            network,
-            epoch,
-            bucket_num,
-            part_num,
-            save,
-            obj_folder,
-            include_refs,
-          })
 
-          return {
+    try {
+      const objects = await Promise.all(
+        current_batch.map(
+          async ({
             bucket_num,
             part_num,
-            buffer: Buffer.from(buffer),
-            ref_buffer: ref_buffer && Buffer.from(ref_buffer),
             file_compression,
             file_type,
             sha3_digest,
-          }
-        },
-      ),
-    )
+          }) => {
+            const { buffer, ref_buffer } = await fetch_object({
+              network,
+              epoch,
+              bucket_num,
+              part_num,
+              save,
+              obj_folder,
+              include_refs,
+            })
 
-    yield objects
+            return {
+              bucket_num,
+              part_num,
+              buffer: Buffer.from(buffer),
+              ref_buffer: ref_buffer && Buffer.from(ref_buffer),
+              file_compression,
+              file_type,
+              sha3_digest,
+            }
+          },
+        ),
+      )
+
+      yield objects
+    } catch (error) {
+      log.error(error, 'Error downloading checkpoint file. Retrying..')
+      // add the batch back for immediate retry
+      object_metadata.unshift(...current_batch)
+    }
   }
 }
