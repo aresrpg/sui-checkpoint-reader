@@ -6,14 +6,6 @@ import logger from '../logger.js'
 
 const log = logger(import.meta)
 
-async function fetch_manifest({ network, epoch }) {
-  const response = await fetch(
-    `https://formal-snapshot.${network}.sui.io/epoch_${epoch}/MANIFEST`,
-  )
-  const buffer = await response.arrayBuffer()
-  return buffer
-}
-
 async function fetch_object({
   network,
   epoch,
@@ -65,17 +57,49 @@ async function fetch_object({
   return { buffer, ref_buffer }
 }
 
-function parse_manifest(buffer) {
-  // https://github.com/MystenLabs/sui/blob/c1b1e1e74c82b950e8d531f1b84c605d1ea957ca/crates/sui-snapshot/src/lib.rs#L109-L116
+async function fetch_manifest({ network, epoch }) {
+  const url = `https://formal-snapshot.${network}.sui.io/epoch_${epoch}/MANIFEST`
+  const response = await fetch(url)
 
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch manifest: ${response.status} ${response.statusText}`,
+    )
+  }
+
+  const buffer = await response.arrayBuffer()
   const view = new DataView(buffer)
 
-  // eslint-disable-next-line eqeqeq
-  // if (view.getUint32(0) != 0x00c0ffee) throw new Error('Invalid magic')
+  // Read in network byte order (big-endian)
+  const magic = view.getUint32(0, false) // false = big-endian
+  if (magic !== 0x00c0ffee) {
+    // Debug log the magic in hex
+    const magicHex = magic.toString(16).padStart(8, '0')
+    throw new Error(
+      `Invalid magic number: 0x${magicHex} (expected: 0x00C0FFEE)`,
+    )
+  }
 
-  const serializedManifest = new Uint8Array(view.buffer).slice(4, -32)
+  return buffer
+}
 
-  return Manifest.parse(serializedManifest)
+function parse_manifest(buffer) {
+  // https://github.com/MystenLabs/sui/blob/c1b1e1e74c82b950e8d531f1b84c605d1ea957ca/crates/sui-snapshot/src/lib.rs#L109-L116
+  try {
+    const serialized_manifest = new Uint8Array(buffer).slice(4, -32)
+    return Manifest.parse(serialized_manifest)
+  } catch (error) {
+    const preview = new Uint8Array(buffer).slice(0, 100)
+    const is_html = preview.toString().includes('DOCTYPE')
+
+    if (is_html) {
+      throw new Error(
+        'Received HTML instead of manifest binary data - endpoint may be unavailable',
+      )
+    }
+
+    throw error
+  }
 }
 
 export async function* download_snapshot({
