@@ -562,7 +562,7 @@ export async function read_checkpoints({
           { current_checkpoint_number },
           `/!\\ Error while processing checkpoint, this should never happen and is an internal problem of the sui-checkpoint-reader lib:`,
         )
-        process.exit(1)
+        // process.exit(1)
       }
     }
   }
