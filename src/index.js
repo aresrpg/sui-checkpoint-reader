@@ -352,7 +352,10 @@ export async function read_checkpoints({
     else start_listening_for_local_checkpoints()
 
     while (should_keep_downloading(sync_settings.current_checkpoint)) {
-      await setTimeout(1) // let it breathe
+      // allow the system to breathe and not eat all the resources
+      const breath_time = known_checkpoints.size > 20000 ? 5000 : 1
+      await setTimeout(breath_time) // let it breathe
+
       try {
         const start_time = performance.now()
 
