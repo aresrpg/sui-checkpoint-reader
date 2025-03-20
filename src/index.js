@@ -589,7 +589,10 @@ export function premap_transaction(transaction) {
     previous_transaction: to_address,
     package_id: to_address,
     consensus_commit_digest: to_address,
-    ObjectWrite: ([key, value]) => ({ [toBase58(key)]: value }),
+    ObjectWrite: ([key, value]) => {
+      const bytes = key instanceof Uint8Array ? key : new Uint8Array(key)
+      return { [toBase58(bytes)]: value }
+    },
     changed_objects: entries_array =>
       Object.fromEntries(
         entries_array.map(([key, value]) => [to_address(key), value]),
