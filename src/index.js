@@ -53,14 +53,14 @@ function parse_content(struct, { contents, known_types }) {
           return SuiAddress
         case 'vector':
           if (
-            rest.vector.$kind === 'struct' ||
-            rest.vector.$kind === 'address' ||
-            rest.vector.$kind === 'vector'
+            rest.Vector.$kind === 'struct' ||
+            rest.Vector.$kind === 'address' ||
+            rest.Vector.$kind === 'vector'
           ) {
-            const nested = find_nested_bcs(rest.vector)
+            const nested = find_nested_bcs(rest.Vector)
             return nested ? bcs.vector(nested) : null
           }
-          return bcs.vector(bcs[rest.vector.$kind.toLowerCase()]())
+          return bcs.vector(bcs[rest.Vector.$kind.toLowerCase()]())
         default:
           return bcs[$kind.toLowerCase()]()
       }
