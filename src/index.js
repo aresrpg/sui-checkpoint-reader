@@ -3,7 +3,7 @@ import path from 'path'
 import { readFileSync, unlinkSync } from 'fs'
 import { performance } from 'perf_hooks'
 
-import { bcs, toB58, toHEX } from '@mysten/bcs'
+import { bcs, toBase58, toHex } from '@mysten/bcs'
 import chokidar from 'chokidar'
 
 import sui_bcs from './generated/0x2.js'
@@ -33,9 +33,8 @@ function mapper(object_source, mappings) {
 
   return map_recursive(object_source)
 }
-
 // @ts-ignore
-const to_address = bytes => (Array.isArray(bytes) ? `0x${toHEX(bytes)}` : bytes)
+const to_address = bytes => (Array.isArray(bytes) ? `0x${toHex(bytes)}` : bytes)
 
 function parse_content(struct, { contents, known_types }) {
   if (!contents) return
@@ -582,7 +581,7 @@ export function premap_transaction(transaction) {
   return mapper(transaction, {
     sender: to_address,
     address: to_address,
-    digest: toHEX,
+    digest: toHex,
     owner: o => (Array.isArray(o) ? to_address(o) : o),
     transaction_digest: to_address,
     AddressOwner: to_address,
@@ -590,7 +589,7 @@ export function premap_transaction(transaction) {
     previous_transaction: to_address,
     package_id: to_address,
     consensus_commit_digest: to_address,
-    ObjectWrite: ([key, value]) => ({ [toB58(key)]: value }),
+    ObjectWrite: ([key, value]) => ({ [toBase58(key)]: value }),
     changed_objects: entries_array =>
       Object.fromEntries(
         entries_array.map(([key, value]) => [to_address(key), value]),
@@ -621,11 +620,11 @@ function read_checkpoint({ known_types, object_filter, data }) {
     checkpoint_summary: {
       ...checkpoint_summary,
       data: mapper(checkpoint_summary.data, {
-        content_digest: toHEX,
-        previous_digest: toHEX,
+        content_digest: toHex,
+        previous_digest: toHex,
       }),
       auth_signature: mapper(checkpoint_summary.auth_signature, {
-        signature: toHEX,
+        signature: toHex,
       }),
     },
     checkpoint_contents,

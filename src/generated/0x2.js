@@ -1,8 +1,8 @@
-import { bcs, fromHEX, toHEX } from '@mysten/bcs'
+import { bcs, fromHex, toHex } from '@mysten/bcs'
 
 const Address = bcs.bytes(32).transform({
-  input: val => fromHEX(val),
-  output: val => toHEX(val),
+  input: val => fromHex(val),
+  output: val => toHex(val),
 })
 const String = bcs.struct('String', {
   bytes: bcs.vector(bcs.u8()),
@@ -78,6 +78,10 @@ const VecMap = (T0, T1) =>
 const SUI = bcs.struct('SUI', {
   dummy_field: bcs.bool(),
 })
+const PCREntry = bcs.struct('PCREntry', {
+  index: bcs.u8(),
+  value: bcs.vector(bcs.u8()),
+})
 const Versioned = bcs.struct('Versioned', {
   id: UID,
   version: bcs.u64(),
@@ -148,6 +152,9 @@ export default {
       dummy_field: bcs.bool(),
     }),
     Scalar: bcs.struct('Scalar', {
+      dummy_field: bcs.bool(),
+    }),
+    UncompressedG1: bcs.struct('UncompressedG1', {
       dummy_field: bcs.bool(),
     }),
   },
@@ -396,6 +403,22 @@ export default {
         next: Option(T0),
         value: T1,
       }),
+  },
+
+  nitro_attestation: {
+    NitroAttestationDocument: bcs.struct('NitroAttestationDocument', {
+      module_id: bcs.vector(bcs.u8()),
+      timestamp: bcs.u64(),
+      digest: bcs.vector(bcs.u8()),
+      pcrs: bcs.vector(PCREntry),
+      public_key: Option(bcs.vector(bcs.u8())),
+      user_data: Option(bcs.vector(bcs.u8())),
+      nonce: Option(bcs.vector(bcs.u8())),
+    }),
+    PCREntry: bcs.struct('PCREntry', {
+      index: bcs.u8(),
+      value: bcs.vector(bcs.u8()),
+    }),
   },
 
   object: {

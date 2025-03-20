@@ -259,6 +259,11 @@ declare namespace _default {
         }, {
             dummy_field: boolean;
         }>;
+        let UncompressedG1: import("@mysten/bcs").BcsType<{
+            dummy_field: boolean;
+        }, {
+            dummy_field: boolean;
+        }>;
     }
     export namespace borrow {
         let Borrow: import("@mysten/bcs").BcsType<{
@@ -1003,6 +1008,66 @@ declare namespace _default {
                 };
             };
             value: unknown;
+        }>;
+    }
+    export namespace nitro_attestation {
+        let NitroAttestationDocument: import("@mysten/bcs").BcsType<{
+            module_id: number[];
+            timestamp: string;
+            digest: number[];
+            pcrs: {
+                index: number;
+                value: number[];
+            }[];
+            public_key: {
+                vec: any[];
+            };
+            user_data: {
+                vec: any[];
+            };
+            nonce: {
+                vec: any[];
+            };
+        }, {
+            module_id: Iterable<number> & {
+                length: number;
+            };
+            timestamp: string | number | bigint;
+            digest: Iterable<number> & {
+                length: number;
+            };
+            pcrs: Iterable<{
+                index: number;
+                value: Iterable<number> & {
+                    length: number;
+                };
+            }> & {
+                length: number;
+            };
+            public_key: {
+                vec: Iterable<any> & {
+                    length: number;
+                };
+            };
+            user_data: {
+                vec: Iterable<any> & {
+                    length: number;
+                };
+            };
+            nonce: {
+                vec: Iterable<any> & {
+                    length: number;
+                };
+            };
+        }>;
+        let PCREntry: import("@mysten/bcs").BcsType<{
+            index: number;
+            value: number[];
+        }, {
+            index: number;
+            value: Iterable<number> & {
+                length: number;
+            };
         }>;
     }
     export namespace object {

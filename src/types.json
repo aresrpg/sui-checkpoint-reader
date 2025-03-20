@@ -24,6 +24,11 @@
       }
     ]
   },
+  "AdditionalConsensusStateDigest": {
+    "NEWTYPESTRUCT": {
+      "TYPENAME": "Digest"
+    }
+  },
   "Argument": {
     "ENUM": {
       "0": {
@@ -42,6 +47,17 @@
       "3": {
         "NestedResult": {
           "TUPLE": ["U16", "U16"]
+        }
+      }
+    }
+  },
+  "Authenticator": {
+    "ENUM": {
+      "0": {
+        "SingleOwner": {
+          "NEWTYPE": {
+            "TYPENAME": "SuiAddress"
+          }
         }
       }
     }
@@ -612,6 +628,39 @@
       }
     ]
   },
+  "ConsensusCommitPrologueV4": {
+    "STRUCT": [
+      {
+        "epoch": "U64"
+      },
+      {
+        "round": "U64"
+      },
+      {
+        "sub_dag_index": {
+          "OPTION": "U64"
+        }
+      },
+      {
+        "commit_timestamp_ms": "U64"
+      },
+      {
+        "consensus_commit_digest": {
+          "TYPENAME": "ConsensusCommitDigest"
+        }
+      },
+      {
+        "consensus_determined_version_assignments": {
+          "TYPENAME": "ConsensusDeterminedVersionAssignments"
+        }
+      },
+      {
+        "additional_state_digest": {
+          "TYPENAME": "AdditionalConsensusStateDigest"
+        }
+      }
+    ]
+  },
   "ConsensusDeterminedVersionAssignments": {
     "ENUM": {
       "0": {
@@ -627,6 +676,38 @@
                     "TUPLE": [
                       {
                         "TYPENAME": "ObjectID"
+                      },
+                      {
+                        "TYPENAME": "SequenceNumber"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "1": {
+        "CancelledTransactionsV2": {
+          "NEWTYPE": {
+            "SEQ": {
+              "TUPLE": [
+                {
+                  "TYPENAME": "TransactionDigest"
+                },
+                {
+                  "SEQ": {
+                    "TUPLE": [
+                      {
+                        "TUPLE": [
+                          {
+                            "TYPENAME": "ObjectID"
+                          },
+                          {
+                            "TYPENAME": "SequenceNumber"
+                          }
+                        ]
                       },
                       {
                         "TYPENAME": "SequenceNumber"
@@ -674,6 +755,16 @@
   },
   "Digest": {
     "NEWTYPESTRUCT": "BYTES"
+  },
+  "Duration": {
+    "STRUCT": [
+      {
+        "secs": "U64"
+      },
+      {
+        "nanos": "U32"
+      }
+    ]
   },
   "ECMHLiveObjectSetDigest": {
     "STRUCT": [
@@ -775,6 +866,13 @@
         "BridgeCommitteeInit": {
           "NEWTYPE": {
             "TYPENAME": "SequenceNumber"
+          }
+        }
+      },
+      "7": {
+        "StoreExecutionTimeObservations": {
+          "NEWTYPE": {
+            "TYPENAME": "StoredExecutionTimeObservations"
           }
         }
       }
@@ -1093,6 +1191,52 @@
             }
           ]
         }
+      }
+    }
+  },
+  "ExecutionTimeObservationKey": {
+    "ENUM": {
+      "0": {
+        "MoveEntryPoint": {
+          "STRUCT": [
+            {
+              "package": {
+                "TYPENAME": "ObjectID"
+              }
+            },
+            {
+              "module": "STR"
+            },
+            {
+              "function": "STR"
+            },
+            {
+              "type_arguments": {
+                "SEQ": {
+                  "TYPENAME": "TypeInput"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "1": {
+        "TransferObjects": "UNIT"
+      },
+      "2": {
+        "SplitCoins": "UNIT"
+      },
+      "3": {
+        "MergeCoins": "UNIT"
+      },
+      "4": {
+        "Publish": "UNIT"
+      },
+      "5": {
+        "MakeMoveVec": "UNIT"
+      },
+      "6": {
+        "Upgrade": "UNIT"
       }
     }
   },
@@ -1628,6 +1772,22 @@
       },
       "3": {
         "Immutable": "UNIT"
+      },
+      "4": {
+        "ConsensusV2": {
+          "STRUCT": [
+            {
+              "start_version": {
+                "TYPENAME": "SequenceNumber"
+              }
+            },
+            {
+              "authenticator": {
+                "TYPENAME": "Authenticator"
+              }
+            }
+          ]
+        }
       }
     }
   },
@@ -1837,6 +1997,35 @@
   },
   "SequenceNumber": {
     "NEWTYPESTRUCT": "U64"
+  },
+  "StoredExecutionTimeObservations": {
+    "ENUM": {
+      "0": {
+        "V1": {
+          "NEWTYPE": {
+            "SEQ": {
+              "TUPLE": [
+                {
+                  "TYPENAME": "ExecutionTimeObservationKey"
+                },
+                {
+                  "SEQ": {
+                    "TUPLE": [
+                      {
+                        "TYPENAME": "AuthorityPublicKeyBytes"
+                      },
+                      {
+                        "TYPENAME": "Duration"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
   },
   "StructInput": {
     "STRUCT": [
@@ -2340,6 +2529,13 @@
             "TYPENAME": "ConsensusCommitPrologueV3"
           }
         }
+      },
+      "9": {
+        "ConsensusCommitPrologueV4": {
+          "NEWTYPE": {
+            "TYPENAME": "ConsensusCommitPrologueV4"
+          }
+        }
       }
     }
   },
@@ -2359,42 +2555,42 @@
         "bool": "UNIT"
       },
       "1": {
-        "u8": "UNIT"
+        "U8": "UNIT"
       },
       "2": {
-        "u64": "UNIT"
+        "U64": "UNIT"
       },
       "3": {
-        "u128": "UNIT"
+        "U128": "UNIT"
       },
       "4": {
-        "address": "UNIT"
+        "Address": "UNIT"
       },
       "5": {
-        "signer": "UNIT"
+        "Signer": "UNIT"
       },
       "6": {
-        "vector": {
+        "Vector": {
           "NEWTYPE": {
             "TYPENAME": "TypeInput"
           }
         }
       },
       "7": {
-        "struct": {
+        "Struct": {
           "NEWTYPE": {
             "TYPENAME": "StructInput"
           }
         }
       },
       "8": {
-        "u16": "UNIT"
+        "U16": "UNIT"
       },
       "9": {
-        "u32": "UNIT"
+        "U32": "UNIT"
       },
       "10": {
-        "u256": "UNIT"
+        "U256": "UNIT"
       }
     }
   },
@@ -2416,25 +2612,25 @@
   "TypeTag": {
     "ENUM": {
       "0": {
-        "bool": "UNIT"
+        "Bool": "UNIT"
       },
       "1": {
-        "u8": "UNIT"
+        "U8": "UNIT"
       },
       "2": {
-        "u64": "UNIT"
+        "U64": "UNIT"
       },
       "3": {
-        "u128": "UNIT"
+        "U128": "UNIT"
       },
       "4": {
-        "address": "UNIT"
+        "Address": "UNIT"
       },
       "5": {
-        "signer": "UNIT"
+        "Signer": "UNIT"
       },
       "6": {
-        "vector": {
+        "Vector": {
           "NEWTYPE": {
             "TYPENAME": "TypeTag"
           }
@@ -2448,13 +2644,13 @@
         }
       },
       "8": {
-        "u16": "UNIT"
+        "U16": "UNIT"
       },
       "9": {
-        "u32": "UNIT"
+        "U32": "UNIT"
       },
       "10": {
-        "u256": "UNIT"
+        "U256": "UNIT"
       }
     }
   },

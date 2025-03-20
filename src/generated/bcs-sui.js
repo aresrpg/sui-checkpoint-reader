@@ -21,11 +21,17 @@ export const ActiveJwk = bcs.struct('ActiveJwk', {
   jwk: JWK,
   epoch: bcs.u64(),
 })
+export const Digest = bcs.vector(bcs.u8())
+export const AdditionalConsensusStateDigest = Digest
 export const Argument = bcs.enum('Argument', {
   GasCoin: null,
   Input: bcs.u16(),
   Result: bcs.u16(),
   NestedResult: bcs.tuple([bcs.u16(), bcs.u16()]),
+})
+export const SuiAddress = bcs.fixedArray(32, bcs.u8())
+export const Authenticator = bcs.enum('Authenticator', {
+  SingleOwner: SuiAddress,
 })
 export const SequenceNumber = bcs.u64()
 export const AuthenticatorStateExpire = bcs.struct('AuthenticatorStateExpire', {
@@ -45,7 +51,6 @@ export const AuthorityQuorumSignInfo = bcs.struct('AuthorityQuorumSignInfo', {
   signers_map: bcs.vector(bcs.u8()),
 })
 export const ObjectID = AccountAddress
-export const Digest = bcs.vector(bcs.u8())
 export const ObjectDigest = Digest
 export const ObjectArg = bcs.enum('ObjectArg', {
   ImmOrOwnedObject: bcs.tuple([ObjectID, SequenceNumber, ObjectDigest]),
@@ -175,17 +180,17 @@ export const ProgrammableTransaction = bcs.struct('ProgrammableTransaction', {
   commands: bcs.vector(Command),
 })
 export const TypeTag = bcs.enum('TypeTag', {
-  bool: null,
-  u8: null,
-  u64: null,
-  u128: null,
-  address: null,
-  signer: null,
-  vector: bcs.lazy(() => TypeTag),
+  Bool: null,
+  U8: null,
+  U64: null,
+  U128: null,
+  Address: null,
+  Signer: null,
+  Vector: bcs.lazy(() => TypeTag),
   struct: bcs.lazy(() => StructTag),
-  u16: null,
-  u32: null,
-  u256: null,
+  U16: null,
+  U32: null,
+  U256: null,
 })
 export const StructTag = bcs.struct('StructTag', {
   address: AccountAddress,
@@ -223,12 +228,15 @@ export const MovePackage = bcs.struct('MovePackage', {
   linkage_table: bcs.map(ObjectID, UpgradeInfo),
 })
 export const Data = bcs.enum('Data', { Move: MoveObject, Package: MovePackage })
-export const SuiAddress = bcs.fixedArray(32, bcs.u8())
 export const Owner = bcs.enum('Owner', {
   AddressOwner: SuiAddress,
   ObjectOwner: SuiAddress,
   Shared: bcs.struct('Shared', { initial_shared_version: SequenceNumber }),
   Immutable: null,
+  ConsensusV2: bcs.struct('ConsensusV2', {
+    start_version: SequenceNumber,
+    authenticator: Authenticator,
+  }),
 })
 export const GenesisObject = bcs.enum('GenesisObject', {
   RawObject: bcs.struct('RawObject', { data: Data, owner: Owner }),
@@ -241,6 +249,38 @@ export const ConsensusCommitPrologue = bcs.struct('ConsensusCommitPrologue', {
   round: bcs.u64(),
   commit_timestamp_ms: bcs.u64(),
 })
+export const ExecutionTimeObservationKey = bcs.enum(
+  'ExecutionTimeObservationKey',
+  {
+    MoveEntryPoint: bcs.struct('MoveEntryPoint', {
+      package: ObjectID,
+      module: bcs.string(),
+      function: bcs.string(),
+      type_arguments: bcs.vector(TypeInput),
+    }),
+    TransferObjects: null,
+    SplitCoins: null,
+    MergeCoins: null,
+    Publish: null,
+    MakeMoveVec: null,
+    Upgrade: null,
+  },
+)
+export const Duration = bcs.struct('Duration', {
+  secs: bcs.u64(),
+  nanos: bcs.u32(),
+})
+export const StoredExecutionTimeObservations = bcs.enum(
+  'StoredExecutionTimeObservations',
+  {
+    V1: bcs.vector(
+      bcs.tuple([
+        ExecutionTimeObservationKey,
+        bcs.vector(bcs.tuple([AuthorityPublicKeyBytes, Duration])),
+      ]),
+    ),
+  },
+)
 export const EndOfEpochTransactionKind = bcs.enum('EndOfEpochTransactionKind', {
   ChangeEpoch,
   AuthenticatorStateCreate: null,
@@ -249,6 +289,7 @@ export const EndOfEpochTransactionKind = bcs.enum('EndOfEpochTransactionKind', {
   DenyListStateCreate: null,
   BridgeStateCreate: ChainIdentifier,
   BridgeCommitteeInit: SequenceNumber,
+  StoreExecutionTimeObservations: StoredExecutionTimeObservations,
 })
 export const RandomnessRound = bcs.u64()
 export const RandomnessStateUpdate = bcs.struct('RandomnessStateUpdate', {
@@ -276,6 +317,14 @@ export const ConsensusDeterminedVersionAssignments = bcs.enum(
         bcs.vector(bcs.tuple([ObjectID, SequenceNumber])),
       ]),
     ),
+    CancelledTransactionsV2: bcs.vector(
+      bcs.tuple([
+        TransactionDigest,
+        bcs.vector(
+          bcs.tuple([bcs.tuple([ObjectID, SequenceNumber]), SequenceNumber]),
+        ),
+      ]),
+    ),
   },
 )
 export const ConsensusCommitPrologueV3 = bcs.struct(
@@ -290,6 +339,19 @@ export const ConsensusCommitPrologueV3 = bcs.struct(
       ConsensusDeterminedVersionAssignments,
   },
 )
+export const ConsensusCommitPrologueV4 = bcs.struct(
+  'ConsensusCommitPrologueV4',
+  {
+    epoch: bcs.u64(),
+    round: bcs.u64(),
+    sub_dag_index: bcs.option(bcs.u64()),
+    commit_timestamp_ms: bcs.u64(),
+    consensus_commit_digest: ConsensusCommitDigest,
+    consensus_determined_version_assignments:
+      ConsensusDeterminedVersionAssignments,
+    additional_state_digest: AdditionalConsensusStateDigest,
+  },
+)
 export const TransactionKind = bcs.enum('TransactionKind', {
   ProgrammableTransaction,
   ChangeEpoch,
@@ -300,6 +362,7 @@ export const TransactionKind = bcs.enum('TransactionKind', {
   RandomnessStateUpdate,
   ConsensusCommitPrologueV2,
   ConsensusCommitPrologueV3,
+  ConsensusCommitPrologueV4,
 })
 export const GasData = bcs.struct('GasData', {
   payment: bcs.vector(bcs.tuple([ObjectID, SequenceNumber, ObjectDigest])),

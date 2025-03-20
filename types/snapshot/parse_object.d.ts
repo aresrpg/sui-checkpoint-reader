@@ -50,7 +50,14 @@ export function parse_objects({ buffer, file_compression }: {
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
         previous_transaction: number[];
         storage_rebate: string;
     };

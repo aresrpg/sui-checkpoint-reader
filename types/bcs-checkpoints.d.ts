@@ -54,7 +54,14 @@ export const LiveObject: import("@mysten/bcs").BcsType<import("@mysten/bcs").Enu
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
         previous_transaction: number[];
         storage_rebate: string;
     };
@@ -125,6 +132,14 @@ export const LiveObject: import("@mysten/bcs").BcsType<import("@mysten/bcs").Enu
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>;
         previous_transaction: Iterable<number> & {
             length: number;

@@ -44,6 +44,12 @@ export const ActiveJwk: import("@mysten/bcs").BcsType<{
     };
     epoch: string | number | bigint;
 }>;
+export const Digest: import("@mysten/bcs").BcsType<number[], Iterable<number> & {
+    length: number;
+}>;
+export const AdditionalConsensusStateDigest: import("@mysten/bcs").BcsType<number[], Iterable<number> & {
+    length: number;
+}>;
 export const Argument: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutputShapeWithKeys<{
     GasCoin: unknown;
     Input: number;
@@ -55,6 +61,17 @@ export const Argument: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumO
     Result: number;
     NestedResult: readonly [number, number];
 }>>;
+export const SuiAddress: import("@mysten/bcs").BcsType<number[], Iterable<number> & {
+    length: number;
+}>;
+export const Authenticator: import("@mysten/bcs").BcsType<{
+    SingleOwner: number[];
+    $kind: "SingleOwner";
+}, {
+    SingleOwner: Iterable<number> & {
+        length: number;
+    };
+}>;
 export const SequenceNumber: import("@mysten/bcs").BcsType<string, string | number | bigint>;
 export const AuthenticatorStateExpire: import("@mysten/bcs").BcsType<{
     min_epoch: string;
@@ -117,9 +134,6 @@ export const AuthorityQuorumSignInfo: import("@mysten/bcs").BcsType<{
     };
 }>;
 export const ObjectID: import("@mysten/bcs").BcsType<number[], Iterable<number> & {
-    length: number;
-}>;
-export const Digest: import("@mysten/bcs").BcsType<number[], Iterable<number> & {
     length: number;
 }>;
 export const ObjectDigest: import("@mysten/bcs").BcsType<number[], Iterable<number> & {
@@ -1077,9 +1091,6 @@ export const Data: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutpu
         }>;
     };
 }>>;
-export const SuiAddress: import("@mysten/bcs").BcsType<number[], Iterable<number> & {
-    length: number;
-}>;
 export const Owner: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutputShapeWithKeys<{
     AddressOwner: number[];
     ObjectOwner: number[];
@@ -1087,7 +1098,14 @@ export const Owner: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutp
         initial_shared_version: string;
     };
     Immutable: unknown;
-}, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">, import("@mysten/bcs").EnumInputShape<{
+    ConsensusV2: {
+        start_version: string;
+        authenticator: {
+            SingleOwner: number[];
+            $kind: "SingleOwner";
+        };
+    };
+}, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">, import("@mysten/bcs").EnumInputShape<{
     AddressOwner: Iterable<number> & {
         length: number;
     };
@@ -1098,6 +1116,14 @@ export const Owner: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutp
         initial_shared_version: string | number | bigint;
     };
     Immutable: unknown;
+    ConsensusV2: {
+        start_version: string | number | bigint;
+        authenticator: {
+            SingleOwner: Iterable<number> & {
+                length: number;
+            };
+        };
+    };
 }>>;
 export const GenesisObject: import("@mysten/bcs").BcsType<{
     RawObject: {
@@ -1140,7 +1166,14 @@ export const GenesisObject: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
     };
     $kind: "RawObject";
 }, {
@@ -1206,6 +1239,14 @@ export const GenesisObject: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>;
     };
 }>;
@@ -1251,7 +1292,14 @@ export const GenesisTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
         };
         $kind: "RawObject";
     }[];
@@ -1319,6 +1367,14 @@ export const GenesisTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>;
         };
     }> & {
@@ -1333,6 +1389,92 @@ export const ConsensusCommitPrologue: import("@mysten/bcs").BcsType<{
     epoch: string | number | bigint;
     round: string | number | bigint;
     commit_timestamp_ms: string | number | bigint;
+}>;
+export const ExecutionTimeObservationKey: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutputShapeWithKeys<{
+    MoveEntryPoint: {
+        package: number[];
+        module: string;
+        function: string;
+        type_arguments: any[];
+    };
+    TransferObjects: unknown;
+    SplitCoins: unknown;
+    MergeCoins: unknown;
+    Publish: unknown;
+    MakeMoveVec: unknown;
+    Upgrade: unknown;
+}, "TransferObjects" | "SplitCoins" | "MergeCoins" | "Publish" | "MakeMoveVec" | "Upgrade" | "MoveEntryPoint">, import("@mysten/bcs").EnumInputShape<{
+    MoveEntryPoint: {
+        package: Iterable<number> & {
+            length: number;
+        };
+        module: string;
+        function: string;
+        type_arguments: Iterable<any> & {
+            length: number;
+        };
+    };
+    TransferObjects: unknown;
+    SplitCoins: unknown;
+    MergeCoins: unknown;
+    Publish: unknown;
+    MakeMoveVec: unknown;
+    Upgrade: unknown;
+}>>;
+export const Duration: import("@mysten/bcs").BcsType<{
+    secs: string;
+    nanos: number;
+}, {
+    secs: string | number | bigint;
+    nanos: number;
+}>;
+export const StoredExecutionTimeObservations: import("@mysten/bcs").BcsType<{
+    V1: [import("@mysten/bcs").EnumOutputShapeWithKeys<{
+        MoveEntryPoint: {
+            package: number[];
+            module: string;
+            function: string;
+            type_arguments: any[];
+        };
+        TransferObjects: unknown;
+        SplitCoins: unknown;
+        MergeCoins: unknown;
+        Publish: unknown;
+        MakeMoveVec: unknown;
+        Upgrade: unknown;
+    }, "TransferObjects" | "SplitCoins" | "MergeCoins" | "Publish" | "MakeMoveVec" | "Upgrade" | "MoveEntryPoint">, [number[], {
+        secs: string;
+        nanos: number;
+    }][]][];
+    $kind: "V1";
+}, {
+    V1: Iterable<readonly [import("@mysten/bcs").EnumInputShape<{
+        MoveEntryPoint: {
+            package: Iterable<number> & {
+                length: number;
+            };
+            module: string;
+            function: string;
+            type_arguments: Iterable<any> & {
+                length: number;
+            };
+        };
+        TransferObjects: unknown;
+        SplitCoins: unknown;
+        MergeCoins: unknown;
+        Publish: unknown;
+        MakeMoveVec: unknown;
+        Upgrade: unknown;
+    }>, Iterable<readonly [Iterable<number> & {
+        length: number;
+    }, {
+        secs: string | number | bigint;
+        nanos: number;
+    }]> & {
+        length: number;
+    }]> & {
+        length: number;
+    };
 }>;
 export const EndOfEpochTransactionKind: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutputShapeWithKeys<{
     ChangeEpoch: {
@@ -1354,7 +1496,27 @@ export const EndOfEpochTransactionKind: import("@mysten/bcs").BcsType<import("@m
     DenyListStateCreate: unknown;
     BridgeStateCreate: number[];
     BridgeCommitteeInit: string;
-}, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit">, import("@mysten/bcs").EnumInputShape<{
+    StoreExecutionTimeObservations: {
+        V1: [import("@mysten/bcs").EnumOutputShapeWithKeys<{
+            MoveEntryPoint: {
+                package: number[];
+                module: string;
+                function: string;
+                type_arguments: any[];
+            };
+            TransferObjects: unknown;
+            SplitCoins: unknown;
+            MergeCoins: unknown;
+            Publish: unknown;
+            MakeMoveVec: unknown;
+            Upgrade: unknown;
+        }, "TransferObjects" | "SplitCoins" | "MergeCoins" | "Publish" | "MakeMoveVec" | "Upgrade" | "MoveEntryPoint">, [number[], {
+            secs: string;
+            nanos: number;
+        }][]][];
+        $kind: "V1";
+    };
+}, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit" | "StoreExecutionTimeObservations">, import("@mysten/bcs").EnumInputShape<{
     ChangeEpoch: {
         epoch: string | number | bigint;
         protocol_version: string | number | bigint;
@@ -1386,6 +1548,35 @@ export const EndOfEpochTransactionKind: import("@mysten/bcs").BcsType<import("@m
         length: number;
     };
     BridgeCommitteeInit: string | number | bigint;
+    StoreExecutionTimeObservations: {
+        V1: Iterable<readonly [import("@mysten/bcs").EnumInputShape<{
+            MoveEntryPoint: {
+                package: Iterable<number> & {
+                    length: number;
+                };
+                module: string;
+                function: string;
+                type_arguments: Iterable<any> & {
+                    length: number;
+                };
+            };
+            TransferObjects: unknown;
+            SplitCoins: unknown;
+            MergeCoins: unknown;
+            Publish: unknown;
+            MakeMoveVec: unknown;
+            Upgrade: unknown;
+        }>, Iterable<readonly [Iterable<number> & {
+            length: number;
+        }, {
+            secs: string | number | bigint;
+            nanos: number;
+        }]> & {
+            length: number;
+        }]> & {
+            length: number;
+        };
+    };
 }>>;
 export const RandomnessRound: import("@mysten/bcs").BcsType<string, string | number | bigint>;
 export const RandomnessStateUpdate: import("@mysten/bcs").BcsType<{
@@ -1417,10 +1608,10 @@ export const ConsensusCommitPrologueV2: import("@mysten/bcs").BcsType<{
         length: number;
     };
 }>;
-export const ConsensusDeterminedVersionAssignments: import("@mysten/bcs").BcsType<{
+export const ConsensusDeterminedVersionAssignments: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutputShapeWithKeys<{
     CancelledTransactions: [number[], [number[], string][]][];
-    $kind: "CancelledTransactions";
-}, {
+    CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+}, "CancelledTransactions" | "CancelledTransactionsV2">, import("@mysten/bcs").EnumInputShape<{
     CancelledTransactions: Iterable<readonly [Iterable<number> & {
         length: number;
     }, Iterable<readonly [Iterable<number> & {
@@ -1430,17 +1621,26 @@ export const ConsensusDeterminedVersionAssignments: import("@mysten/bcs").BcsTyp
     }]> & {
         length: number;
     };
-}>;
+    CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+        length: number;
+    }, Iterable<readonly [readonly [Iterable<number> & {
+        length: number;
+    }, string | number | bigint], string | number | bigint]> & {
+        length: number;
+    }]> & {
+        length: number;
+    };
+}>>;
 export const ConsensusCommitPrologueV3: import("@mysten/bcs").BcsType<{
     epoch: string;
     round: string;
     sub_dag_index: string;
     commit_timestamp_ms: string;
     consensus_commit_digest: number[];
-    consensus_determined_version_assignments: {
+    consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
         CancelledTransactions: [number[], [number[], string][]][];
-        $kind: "CancelledTransactions";
-    };
+        CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+    }, "CancelledTransactions" | "CancelledTransactionsV2">;
 }, {
     epoch: string | number | bigint;
     round: string | number | bigint;
@@ -1449,7 +1649,7 @@ export const ConsensusCommitPrologueV3: import("@mysten/bcs").BcsType<{
     consensus_commit_digest: Iterable<number> & {
         length: number;
     };
-    consensus_determined_version_assignments: {
+    consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
         CancelledTransactions: Iterable<readonly [Iterable<number> & {
             length: number;
         }, Iterable<readonly [Iterable<number> & {
@@ -1459,6 +1659,58 @@ export const ConsensusCommitPrologueV3: import("@mysten/bcs").BcsType<{
         }]> & {
             length: number;
         };
+        CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+            length: number;
+        }, Iterable<readonly [readonly [Iterable<number> & {
+            length: number;
+        }, string | number | bigint], string | number | bigint]> & {
+            length: number;
+        }]> & {
+            length: number;
+        };
+    }>;
+}>;
+export const ConsensusCommitPrologueV4: import("@mysten/bcs").BcsType<{
+    epoch: string;
+    round: string;
+    sub_dag_index: string;
+    commit_timestamp_ms: string;
+    consensus_commit_digest: number[];
+    consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
+        CancelledTransactions: [number[], [number[], string][]][];
+        CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+    }, "CancelledTransactions" | "CancelledTransactionsV2">;
+    additional_state_digest: number[];
+}, {
+    epoch: string | number | bigint;
+    round: string | number | bigint;
+    sub_dag_index: string | number | bigint;
+    commit_timestamp_ms: string | number | bigint;
+    consensus_commit_digest: Iterable<number> & {
+        length: number;
+    };
+    consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
+        CancelledTransactions: Iterable<readonly [Iterable<number> & {
+            length: number;
+        }, Iterable<readonly [Iterable<number> & {
+            length: number;
+        }, string | number | bigint]> & {
+            length: number;
+        }]> & {
+            length: number;
+        };
+        CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+            length: number;
+        }, Iterable<readonly [readonly [Iterable<number> & {
+            length: number;
+        }, string | number | bigint], string | number | bigint]> & {
+            length: number;
+        }]> & {
+            length: number;
+        };
+    }>;
+    additional_state_digest: Iterable<number> & {
+        length: number;
     };
 }>;
 export const TransactionKind: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutputShapeWithKeys<{
@@ -1588,7 +1840,14 @@ export const TransactionKind: import("@mysten/bcs").BcsType<import("@mysten/bcs"
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
             };
             $kind: "RawObject";
         }[];
@@ -1636,7 +1895,27 @@ export const TransactionKind: import("@mysten/bcs").BcsType<import("@mysten/bcs"
         DenyListStateCreate: unknown;
         BridgeStateCreate: number[];
         BridgeCommitteeInit: string;
-    }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit">[];
+        StoreExecutionTimeObservations: {
+            V1: [import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                MoveEntryPoint: {
+                    package: number[];
+                    module: string;
+                    function: string;
+                    type_arguments: any[];
+                };
+                TransferObjects: unknown;
+                SplitCoins: unknown;
+                MergeCoins: unknown;
+                Publish: unknown;
+                MakeMoveVec: unknown;
+                Upgrade: unknown;
+            }, "TransferObjects" | "SplitCoins" | "MergeCoins" | "Publish" | "MakeMoveVec" | "Upgrade" | "MoveEntryPoint">, [number[], {
+                secs: string;
+                nanos: number;
+            }][]][];
+            $kind: "V1";
+        };
+    }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit" | "StoreExecutionTimeObservations">[];
     RandomnessStateUpdate: {
         epoch: string;
         randomness_round: string;
@@ -1655,12 +1934,24 @@ export const TransactionKind: import("@mysten/bcs").BcsType<import("@mysten/bcs"
         sub_dag_index: string;
         commit_timestamp_ms: string;
         consensus_commit_digest: number[];
-        consensus_determined_version_assignments: {
+        consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
             CancelledTransactions: [number[], [number[], string][]][];
-            $kind: "CancelledTransactions";
-        };
+            CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+        }, "CancelledTransactions" | "CancelledTransactionsV2">;
     };
-}, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "Genesis" | "EndOfEpochTransaction">, import("@mysten/bcs").EnumInputShape<{
+    ConsensusCommitPrologueV4: {
+        epoch: string;
+        round: string;
+        sub_dag_index: string;
+        commit_timestamp_ms: string;
+        consensus_commit_digest: number[];
+        consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
+            CancelledTransactions: [number[], [number[], string][]][];
+            CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+        }, "CancelledTransactions" | "CancelledTransactionsV2">;
+        additional_state_digest: number[];
+    };
+}, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "ConsensusCommitPrologueV4" | "Genesis" | "EndOfEpochTransaction">, import("@mysten/bcs").EnumInputShape<{
     ProgrammableTransaction: {
         inputs: Iterable<import("@mysten/bcs").EnumInputShape<{
             Pure: Iterable<number> & {
@@ -1867,6 +2158,14 @@ export const TransactionKind: import("@mysten/bcs").BcsType<import("@mysten/bcs"
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>;
             };
         }> & {
@@ -1930,6 +2229,35 @@ export const TransactionKind: import("@mysten/bcs").BcsType<import("@mysten/bcs"
             length: number;
         };
         BridgeCommitteeInit: string | number | bigint;
+        StoreExecutionTimeObservations: {
+            V1: Iterable<readonly [import("@mysten/bcs").EnumInputShape<{
+                MoveEntryPoint: {
+                    package: Iterable<number> & {
+                        length: number;
+                    };
+                    module: string;
+                    function: string;
+                    type_arguments: Iterable<any> & {
+                        length: number;
+                    };
+                };
+                TransferObjects: unknown;
+                SplitCoins: unknown;
+                MergeCoins: unknown;
+                Publish: unknown;
+                MakeMoveVec: unknown;
+                Upgrade: unknown;
+            }>, Iterable<readonly [Iterable<number> & {
+                length: number;
+            }, {
+                secs: string | number | bigint;
+                nanos: number;
+            }]> & {
+                length: number;
+            }]> & {
+                length: number;
+            };
+        };
     }>> & {
         length: number;
     };
@@ -1957,7 +2285,7 @@ export const TransactionKind: import("@mysten/bcs").BcsType<import("@mysten/bcs"
         consensus_commit_digest: Iterable<number> & {
             length: number;
         };
-        consensus_determined_version_assignments: {
+        consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
             CancelledTransactions: Iterable<readonly [Iterable<number> & {
                 length: number;
             }, Iterable<readonly [Iterable<number> & {
@@ -1967,6 +2295,47 @@ export const TransactionKind: import("@mysten/bcs").BcsType<import("@mysten/bcs"
             }]> & {
                 length: number;
             };
+            CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                length: number;
+            }, Iterable<readonly [readonly [Iterable<number> & {
+                length: number;
+            }, string | number | bigint], string | number | bigint]> & {
+                length: number;
+            }]> & {
+                length: number;
+            };
+        }>;
+    };
+    ConsensusCommitPrologueV4: {
+        epoch: string | number | bigint;
+        round: string | number | bigint;
+        sub_dag_index: string | number | bigint;
+        commit_timestamp_ms: string | number | bigint;
+        consensus_commit_digest: Iterable<number> & {
+            length: number;
+        };
+        consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
+            CancelledTransactions: Iterable<readonly [Iterable<number> & {
+                length: number;
+            }, Iterable<readonly [Iterable<number> & {
+                length: number;
+            }, string | number | bigint]> & {
+                length: number;
+            }]> & {
+                length: number;
+            };
+            CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                length: number;
+            }, Iterable<readonly [readonly [Iterable<number> & {
+                length: number;
+            }, string | number | bigint], string | number | bigint]> & {
+                length: number;
+            }]> & {
+                length: number;
+            };
+        }>;
+        additional_state_digest: Iterable<number> & {
+            length: number;
         };
     };
 }>>;
@@ -2124,7 +2493,14 @@ export const TransactionDataV1: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string;
                         };
                         Immutable: unknown;
-                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+                        ConsensusV2: {
+                            start_version: string;
+                            authenticator: {
+                                SingleOwner: number[];
+                                $kind: "SingleOwner";
+                            };
+                        };
+                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
                 };
                 $kind: "RawObject";
             }[];
@@ -2172,7 +2548,27 @@ export const TransactionDataV1: import("@mysten/bcs").BcsType<{
             DenyListStateCreate: unknown;
             BridgeStateCreate: number[];
             BridgeCommitteeInit: string;
-        }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit">[];
+            StoreExecutionTimeObservations: {
+                V1: [import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                    MoveEntryPoint: {
+                        package: number[];
+                        module: string;
+                        function: string;
+                        type_arguments: any[];
+                    };
+                    TransferObjects: unknown;
+                    SplitCoins: unknown;
+                    MergeCoins: unknown;
+                    Publish: unknown;
+                    MakeMoveVec: unknown;
+                    Upgrade: unknown;
+                }, "TransferObjects" | "SplitCoins" | "MergeCoins" | "Publish" | "MakeMoveVec" | "Upgrade" | "MoveEntryPoint">, [number[], {
+                    secs: string;
+                    nanos: number;
+                }][]][];
+                $kind: "V1";
+            };
+        }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit" | "StoreExecutionTimeObservations">[];
         RandomnessStateUpdate: {
             epoch: string;
             randomness_round: string;
@@ -2191,12 +2587,24 @@ export const TransactionDataV1: import("@mysten/bcs").BcsType<{
             sub_dag_index: string;
             commit_timestamp_ms: string;
             consensus_commit_digest: number[];
-            consensus_determined_version_assignments: {
+            consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                 CancelledTransactions: [number[], [number[], string][]][];
-                $kind: "CancelledTransactions";
-            };
+                CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+            }, "CancelledTransactions" | "CancelledTransactionsV2">;
         };
-    }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "Genesis" | "EndOfEpochTransaction">;
+        ConsensusCommitPrologueV4: {
+            epoch: string;
+            round: string;
+            sub_dag_index: string;
+            commit_timestamp_ms: string;
+            consensus_commit_digest: number[];
+            consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                CancelledTransactions: [number[], [number[], string][]][];
+                CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+            }, "CancelledTransactions" | "CancelledTransactionsV2">;
+            additional_state_digest: number[];
+        };
+    }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "ConsensusCommitPrologueV4" | "Genesis" | "EndOfEpochTransaction">;
     sender: number[];
     gas_data: {
         payment: [number[], string, number[]][];
@@ -2416,6 +2824,14 @@ export const TransactionDataV1: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string | number | bigint;
                         };
                         Immutable: unknown;
+                        ConsensusV2: {
+                            start_version: string | number | bigint;
+                            authenticator: {
+                                SingleOwner: Iterable<number> & {
+                                    length: number;
+                                };
+                            };
+                        };
                     }>;
                 };
             }> & {
@@ -2479,6 +2895,35 @@ export const TransactionDataV1: import("@mysten/bcs").BcsType<{
                 length: number;
             };
             BridgeCommitteeInit: string | number | bigint;
+            StoreExecutionTimeObservations: {
+                V1: Iterable<readonly [import("@mysten/bcs").EnumInputShape<{
+                    MoveEntryPoint: {
+                        package: Iterable<number> & {
+                            length: number;
+                        };
+                        module: string;
+                        function: string;
+                        type_arguments: Iterable<any> & {
+                            length: number;
+                        };
+                    };
+                    TransferObjects: unknown;
+                    SplitCoins: unknown;
+                    MergeCoins: unknown;
+                    Publish: unknown;
+                    MakeMoveVec: unknown;
+                    Upgrade: unknown;
+                }>, Iterable<readonly [Iterable<number> & {
+                    length: number;
+                }, {
+                    secs: string | number | bigint;
+                    nanos: number;
+                }]> & {
+                    length: number;
+                }]> & {
+                    length: number;
+                };
+            };
         }>> & {
             length: number;
         };
@@ -2506,7 +2951,7 @@ export const TransactionDataV1: import("@mysten/bcs").BcsType<{
             consensus_commit_digest: Iterable<number> & {
                 length: number;
             };
-            consensus_determined_version_assignments: {
+            consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
                 CancelledTransactions: Iterable<readonly [Iterable<number> & {
                     length: number;
                 }, Iterable<readonly [Iterable<number> & {
@@ -2516,6 +2961,47 @@ export const TransactionDataV1: import("@mysten/bcs").BcsType<{
                 }]> & {
                     length: number;
                 };
+                CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                    length: number;
+                }, Iterable<readonly [readonly [Iterable<number> & {
+                    length: number;
+                }, string | number | bigint], string | number | bigint]> & {
+                    length: number;
+                }]> & {
+                    length: number;
+                };
+            }>;
+        };
+        ConsensusCommitPrologueV4: {
+            epoch: string | number | bigint;
+            round: string | number | bigint;
+            sub_dag_index: string | number | bigint;
+            commit_timestamp_ms: string | number | bigint;
+            consensus_commit_digest: Iterable<number> & {
+                length: number;
+            };
+            consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
+                CancelledTransactions: Iterable<readonly [Iterable<number> & {
+                    length: number;
+                }, Iterable<readonly [Iterable<number> & {
+                    length: number;
+                }, string | number | bigint]> & {
+                    length: number;
+                }]> & {
+                    length: number;
+                };
+                CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                    length: number;
+                }, Iterable<readonly [readonly [Iterable<number> & {
+                    length: number;
+                }, string | number | bigint], string | number | bigint]> & {
+                    length: number;
+                }]> & {
+                    length: number;
+                };
+            }>;
+            additional_state_digest: Iterable<number> & {
+                length: number;
             };
         };
     }>;
@@ -2670,7 +3156,14 @@ export const TransactionData: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string;
                             };
                             Immutable: unknown;
-                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+                            ConsensusV2: {
+                                start_version: string;
+                                authenticator: {
+                                    SingleOwner: number[];
+                                    $kind: "SingleOwner";
+                                };
+                            };
+                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
                     };
                     $kind: "RawObject";
                 }[];
@@ -2718,7 +3211,27 @@ export const TransactionData: import("@mysten/bcs").BcsType<{
                 DenyListStateCreate: unknown;
                 BridgeStateCreate: number[];
                 BridgeCommitteeInit: string;
-            }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit">[];
+                StoreExecutionTimeObservations: {
+                    V1: [import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                        MoveEntryPoint: {
+                            package: number[];
+                            module: string;
+                            function: string;
+                            type_arguments: any[];
+                        };
+                        TransferObjects: unknown;
+                        SplitCoins: unknown;
+                        MergeCoins: unknown;
+                        Publish: unknown;
+                        MakeMoveVec: unknown;
+                        Upgrade: unknown;
+                    }, "TransferObjects" | "SplitCoins" | "MergeCoins" | "Publish" | "MakeMoveVec" | "Upgrade" | "MoveEntryPoint">, [number[], {
+                        secs: string;
+                        nanos: number;
+                    }][]][];
+                    $kind: "V1";
+                };
+            }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit" | "StoreExecutionTimeObservations">[];
             RandomnessStateUpdate: {
                 epoch: string;
                 randomness_round: string;
@@ -2737,12 +3250,24 @@ export const TransactionData: import("@mysten/bcs").BcsType<{
                 sub_dag_index: string;
                 commit_timestamp_ms: string;
                 consensus_commit_digest: number[];
-                consensus_determined_version_assignments: {
+                consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                     CancelledTransactions: [number[], [number[], string][]][];
-                    $kind: "CancelledTransactions";
-                };
+                    CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+                }, "CancelledTransactions" | "CancelledTransactionsV2">;
             };
-        }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "Genesis" | "EndOfEpochTransaction">;
+            ConsensusCommitPrologueV4: {
+                epoch: string;
+                round: string;
+                sub_dag_index: string;
+                commit_timestamp_ms: string;
+                consensus_commit_digest: number[];
+                consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                    CancelledTransactions: [number[], [number[], string][]][];
+                    CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+                }, "CancelledTransactions" | "CancelledTransactionsV2">;
+                additional_state_digest: number[];
+            };
+        }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "ConsensusCommitPrologueV4" | "Genesis" | "EndOfEpochTransaction">;
         sender: number[];
         gas_data: {
             payment: [number[], string, number[]][];
@@ -2965,6 +3490,14 @@ export const TransactionData: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string | number | bigint;
                             };
                             Immutable: unknown;
+                            ConsensusV2: {
+                                start_version: string | number | bigint;
+                                authenticator: {
+                                    SingleOwner: Iterable<number> & {
+                                        length: number;
+                                    };
+                                };
+                            };
                         }>;
                     };
                 }> & {
@@ -3028,6 +3561,35 @@ export const TransactionData: import("@mysten/bcs").BcsType<{
                     length: number;
                 };
                 BridgeCommitteeInit: string | number | bigint;
+                StoreExecutionTimeObservations: {
+                    V1: Iterable<readonly [import("@mysten/bcs").EnumInputShape<{
+                        MoveEntryPoint: {
+                            package: Iterable<number> & {
+                                length: number;
+                            };
+                            module: string;
+                            function: string;
+                            type_arguments: Iterable<any> & {
+                                length: number;
+                            };
+                        };
+                        TransferObjects: unknown;
+                        SplitCoins: unknown;
+                        MergeCoins: unknown;
+                        Publish: unknown;
+                        MakeMoveVec: unknown;
+                        Upgrade: unknown;
+                    }>, Iterable<readonly [Iterable<number> & {
+                        length: number;
+                    }, {
+                        secs: string | number | bigint;
+                        nanos: number;
+                    }]> & {
+                        length: number;
+                    }]> & {
+                        length: number;
+                    };
+                };
             }>> & {
                 length: number;
             };
@@ -3055,7 +3617,7 @@ export const TransactionData: import("@mysten/bcs").BcsType<{
                 consensus_commit_digest: Iterable<number> & {
                     length: number;
                 };
-                consensus_determined_version_assignments: {
+                consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
                     CancelledTransactions: Iterable<readonly [Iterable<number> & {
                         length: number;
                     }, Iterable<readonly [Iterable<number> & {
@@ -3065,6 +3627,47 @@ export const TransactionData: import("@mysten/bcs").BcsType<{
                     }]> & {
                         length: number;
                     };
+                    CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                        length: number;
+                    }, Iterable<readonly [readonly [Iterable<number> & {
+                        length: number;
+                    }, string | number | bigint], string | number | bigint]> & {
+                        length: number;
+                    }]> & {
+                        length: number;
+                    };
+                }>;
+            };
+            ConsensusCommitPrologueV4: {
+                epoch: string | number | bigint;
+                round: string | number | bigint;
+                sub_dag_index: string | number | bigint;
+                commit_timestamp_ms: string | number | bigint;
+                consensus_commit_digest: Iterable<number> & {
+                    length: number;
+                };
+                consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
+                    CancelledTransactions: Iterable<readonly [Iterable<number> & {
+                        length: number;
+                    }, Iterable<readonly [Iterable<number> & {
+                        length: number;
+                    }, string | number | bigint]> & {
+                        length: number;
+                    }]> & {
+                        length: number;
+                    };
+                    CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                        length: number;
+                    }, Iterable<readonly [readonly [Iterable<number> & {
+                        length: number;
+                    }, string | number | bigint], string | number | bigint]> & {
+                        length: number;
+                    }]> & {
+                        length: number;
+                    };
+                }>;
+                additional_state_digest: Iterable<number> & {
+                    length: number;
                 };
             };
         }>;
@@ -3226,7 +3829,14 @@ export const IntentMessage: import("@mysten/bcs").BcsType<{
                                     initial_shared_version: string;
                                 };
                                 Immutable: unknown;
-                            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+                                ConsensusV2: {
+                                    start_version: string;
+                                    authenticator: {
+                                        SingleOwner: number[];
+                                        $kind: "SingleOwner";
+                                    };
+                                };
+                            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
                         };
                         $kind: "RawObject";
                     }[];
@@ -3274,7 +3884,27 @@ export const IntentMessage: import("@mysten/bcs").BcsType<{
                     DenyListStateCreate: unknown;
                     BridgeStateCreate: number[];
                     BridgeCommitteeInit: string;
-                }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit">[];
+                    StoreExecutionTimeObservations: {
+                        V1: [import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                            MoveEntryPoint: {
+                                package: number[];
+                                module: string;
+                                function: string;
+                                type_arguments: any[];
+                            };
+                            TransferObjects: unknown;
+                            SplitCoins: unknown;
+                            MergeCoins: unknown;
+                            Publish: unknown;
+                            MakeMoveVec: unknown;
+                            Upgrade: unknown;
+                        }, "TransferObjects" | "SplitCoins" | "MergeCoins" | "Publish" | "MakeMoveVec" | "Upgrade" | "MoveEntryPoint">, [number[], {
+                            secs: string;
+                            nanos: number;
+                        }][]][];
+                        $kind: "V1";
+                    };
+                }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit" | "StoreExecutionTimeObservations">[];
                 RandomnessStateUpdate: {
                     epoch: string;
                     randomness_round: string;
@@ -3293,12 +3923,24 @@ export const IntentMessage: import("@mysten/bcs").BcsType<{
                     sub_dag_index: string;
                     commit_timestamp_ms: string;
                     consensus_commit_digest: number[];
-                    consensus_determined_version_assignments: {
+                    consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                         CancelledTransactions: [number[], [number[], string][]][];
-                        $kind: "CancelledTransactions";
-                    };
+                        CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+                    }, "CancelledTransactions" | "CancelledTransactionsV2">;
                 };
-            }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "Genesis" | "EndOfEpochTransaction">;
+                ConsensusCommitPrologueV4: {
+                    epoch: string;
+                    round: string;
+                    sub_dag_index: string;
+                    commit_timestamp_ms: string;
+                    consensus_commit_digest: number[];
+                    consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                        CancelledTransactions: [number[], [number[], string][]][];
+                        CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+                    }, "CancelledTransactions" | "CancelledTransactionsV2">;
+                    additional_state_digest: number[];
+                };
+            }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "ConsensusCommitPrologueV4" | "Genesis" | "EndOfEpochTransaction">;
             sender: number[];
             gas_data: {
                 payment: [number[], string, number[]][];
@@ -3528,6 +4170,14 @@ export const IntentMessage: import("@mysten/bcs").BcsType<{
                                     initial_shared_version: string | number | bigint;
                                 };
                                 Immutable: unknown;
+                                ConsensusV2: {
+                                    start_version: string | number | bigint;
+                                    authenticator: {
+                                        SingleOwner: Iterable<number> & {
+                                            length: number;
+                                        };
+                                    };
+                                };
                             }>;
                         };
                     }> & {
@@ -3591,6 +4241,35 @@ export const IntentMessage: import("@mysten/bcs").BcsType<{
                         length: number;
                     };
                     BridgeCommitteeInit: string | number | bigint;
+                    StoreExecutionTimeObservations: {
+                        V1: Iterable<readonly [import("@mysten/bcs").EnumInputShape<{
+                            MoveEntryPoint: {
+                                package: Iterable<number> & {
+                                    length: number;
+                                };
+                                module: string;
+                                function: string;
+                                type_arguments: Iterable<any> & {
+                                    length: number;
+                                };
+                            };
+                            TransferObjects: unknown;
+                            SplitCoins: unknown;
+                            MergeCoins: unknown;
+                            Publish: unknown;
+                            MakeMoveVec: unknown;
+                            Upgrade: unknown;
+                        }>, Iterable<readonly [Iterable<number> & {
+                            length: number;
+                        }, {
+                            secs: string | number | bigint;
+                            nanos: number;
+                        }]> & {
+                            length: number;
+                        }]> & {
+                            length: number;
+                        };
+                    };
                 }>> & {
                     length: number;
                 };
@@ -3618,7 +4297,7 @@ export const IntentMessage: import("@mysten/bcs").BcsType<{
                     consensus_commit_digest: Iterable<number> & {
                         length: number;
                     };
-                    consensus_determined_version_assignments: {
+                    consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
                         CancelledTransactions: Iterable<readonly [Iterable<number> & {
                             length: number;
                         }, Iterable<readonly [Iterable<number> & {
@@ -3628,6 +4307,47 @@ export const IntentMessage: import("@mysten/bcs").BcsType<{
                         }]> & {
                             length: number;
                         };
+                        CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                            length: number;
+                        }, Iterable<readonly [readonly [Iterable<number> & {
+                            length: number;
+                        }, string | number | bigint], string | number | bigint]> & {
+                            length: number;
+                        }]> & {
+                            length: number;
+                        };
+                    }>;
+                };
+                ConsensusCommitPrologueV4: {
+                    epoch: string | number | bigint;
+                    round: string | number | bigint;
+                    sub_dag_index: string | number | bigint;
+                    commit_timestamp_ms: string | number | bigint;
+                    consensus_commit_digest: Iterable<number> & {
+                        length: number;
+                    };
+                    consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
+                        CancelledTransactions: Iterable<readonly [Iterable<number> & {
+                            length: number;
+                        }, Iterable<readonly [Iterable<number> & {
+                            length: number;
+                        }, string | number | bigint]> & {
+                            length: number;
+                        }]> & {
+                            length: number;
+                        };
+                        CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                            length: number;
+                        }, Iterable<readonly [readonly [Iterable<number> & {
+                            length: number;
+                        }, string | number | bigint], string | number | bigint]> & {
+                            length: number;
+                        }]> & {
+                            length: number;
+                        };
+                    }>;
+                    additional_state_digest: Iterable<number> & {
+                        length: number;
                     };
                 };
             }>;
@@ -3791,7 +4511,14 @@ export const SenderSignedTransaction: import("@mysten/bcs").BcsType<{
                                         initial_shared_version: string;
                                     };
                                     Immutable: unknown;
-                                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+                                    ConsensusV2: {
+                                        start_version: string;
+                                        authenticator: {
+                                            SingleOwner: number[];
+                                            $kind: "SingleOwner";
+                                        };
+                                    };
+                                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
                             };
                             $kind: "RawObject";
                         }[];
@@ -3839,7 +4566,27 @@ export const SenderSignedTransaction: import("@mysten/bcs").BcsType<{
                         DenyListStateCreate: unknown;
                         BridgeStateCreate: number[];
                         BridgeCommitteeInit: string;
-                    }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit">[];
+                        StoreExecutionTimeObservations: {
+                            V1: [import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                                MoveEntryPoint: {
+                                    package: number[];
+                                    module: string;
+                                    function: string;
+                                    type_arguments: any[];
+                                };
+                                TransferObjects: unknown;
+                                SplitCoins: unknown;
+                                MergeCoins: unknown;
+                                Publish: unknown;
+                                MakeMoveVec: unknown;
+                                Upgrade: unknown;
+                            }, "TransferObjects" | "SplitCoins" | "MergeCoins" | "Publish" | "MakeMoveVec" | "Upgrade" | "MoveEntryPoint">, [number[], {
+                                secs: string;
+                                nanos: number;
+                            }][]][];
+                            $kind: "V1";
+                        };
+                    }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit" | "StoreExecutionTimeObservations">[];
                     RandomnessStateUpdate: {
                         epoch: string;
                         randomness_round: string;
@@ -3858,12 +4605,24 @@ export const SenderSignedTransaction: import("@mysten/bcs").BcsType<{
                         sub_dag_index: string;
                         commit_timestamp_ms: string;
                         consensus_commit_digest: number[];
-                        consensus_determined_version_assignments: {
+                        consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                             CancelledTransactions: [number[], [number[], string][]][];
-                            $kind: "CancelledTransactions";
-                        };
+                            CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+                        }, "CancelledTransactions" | "CancelledTransactionsV2">;
                     };
-                }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "Genesis" | "EndOfEpochTransaction">;
+                    ConsensusCommitPrologueV4: {
+                        epoch: string;
+                        round: string;
+                        sub_dag_index: string;
+                        commit_timestamp_ms: string;
+                        consensus_commit_digest: number[];
+                        consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                            CancelledTransactions: [number[], [number[], string][]][];
+                            CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+                        }, "CancelledTransactions" | "CancelledTransactionsV2">;
+                        additional_state_digest: number[];
+                    };
+                }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "ConsensusCommitPrologueV4" | "Genesis" | "EndOfEpochTransaction">;
                 sender: number[];
                 gas_data: {
                     payment: [number[], string, number[]][];
@@ -4096,6 +4855,14 @@ export const SenderSignedTransaction: import("@mysten/bcs").BcsType<{
                                         initial_shared_version: string | number | bigint;
                                     };
                                     Immutable: unknown;
+                                    ConsensusV2: {
+                                        start_version: string | number | bigint;
+                                        authenticator: {
+                                            SingleOwner: Iterable<number> & {
+                                                length: number;
+                                            };
+                                        };
+                                    };
                                 }>;
                             };
                         }> & {
@@ -4159,6 +4926,35 @@ export const SenderSignedTransaction: import("@mysten/bcs").BcsType<{
                             length: number;
                         };
                         BridgeCommitteeInit: string | number | bigint;
+                        StoreExecutionTimeObservations: {
+                            V1: Iterable<readonly [import("@mysten/bcs").EnumInputShape<{
+                                MoveEntryPoint: {
+                                    package: Iterable<number> & {
+                                        length: number;
+                                    };
+                                    module: string;
+                                    function: string;
+                                    type_arguments: Iterable<any> & {
+                                        length: number;
+                                    };
+                                };
+                                TransferObjects: unknown;
+                                SplitCoins: unknown;
+                                MergeCoins: unknown;
+                                Publish: unknown;
+                                MakeMoveVec: unknown;
+                                Upgrade: unknown;
+                            }>, Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, {
+                                secs: string | number | bigint;
+                                nanos: number;
+                            }]> & {
+                                length: number;
+                            }]> & {
+                                length: number;
+                            };
+                        };
                     }>> & {
                         length: number;
                     };
@@ -4186,7 +4982,7 @@ export const SenderSignedTransaction: import("@mysten/bcs").BcsType<{
                         consensus_commit_digest: Iterable<number> & {
                             length: number;
                         };
-                        consensus_determined_version_assignments: {
+                        consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
                             CancelledTransactions: Iterable<readonly [Iterable<number> & {
                                 length: number;
                             }, Iterable<readonly [Iterable<number> & {
@@ -4196,6 +4992,47 @@ export const SenderSignedTransaction: import("@mysten/bcs").BcsType<{
                             }]> & {
                                 length: number;
                             };
+                            CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, Iterable<readonly [readonly [Iterable<number> & {
+                                length: number;
+                            }, string | number | bigint], string | number | bigint]> & {
+                                length: number;
+                            }]> & {
+                                length: number;
+                            };
+                        }>;
+                    };
+                    ConsensusCommitPrologueV4: {
+                        epoch: string | number | bigint;
+                        round: string | number | bigint;
+                        sub_dag_index: string | number | bigint;
+                        commit_timestamp_ms: string | number | bigint;
+                        consensus_commit_digest: Iterable<number> & {
+                            length: number;
+                        };
+                        consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
+                            CancelledTransactions: Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, string | number | bigint]> & {
+                                length: number;
+                            }]> & {
+                                length: number;
+                            };
+                            CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, Iterable<readonly [readonly [Iterable<number> & {
+                                length: number;
+                            }, string | number | bigint], string | number | bigint]> & {
+                                length: number;
+                            }]> & {
+                                length: number;
+                            };
+                        }>;
+                        additional_state_digest: Iterable<number> & {
+                            length: number;
                         };
                     };
                 }>;
@@ -4365,7 +5202,14 @@ export const SenderSignedData: import("@mysten/bcs").BcsType<{
                                         initial_shared_version: string;
                                     };
                                     Immutable: unknown;
-                                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+                                    ConsensusV2: {
+                                        start_version: string;
+                                        authenticator: {
+                                            SingleOwner: number[];
+                                            $kind: "SingleOwner";
+                                        };
+                                    };
+                                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
                             };
                             $kind: "RawObject";
                         }[];
@@ -4413,7 +5257,27 @@ export const SenderSignedData: import("@mysten/bcs").BcsType<{
                         DenyListStateCreate: unknown;
                         BridgeStateCreate: number[];
                         BridgeCommitteeInit: string;
-                    }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit">[];
+                        StoreExecutionTimeObservations: {
+                            V1: [import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                                MoveEntryPoint: {
+                                    package: number[];
+                                    module: string;
+                                    function: string;
+                                    type_arguments: any[];
+                                };
+                                TransferObjects: unknown;
+                                SplitCoins: unknown;
+                                MergeCoins: unknown;
+                                Publish: unknown;
+                                MakeMoveVec: unknown;
+                                Upgrade: unknown;
+                            }, "TransferObjects" | "SplitCoins" | "MergeCoins" | "Publish" | "MakeMoveVec" | "Upgrade" | "MoveEntryPoint">, [number[], {
+                                secs: string;
+                                nanos: number;
+                            }][]][];
+                            $kind: "V1";
+                        };
+                    }, "AuthenticatorStateExpire" | "ChangeEpoch" | "AuthenticatorStateCreate" | "RandomnessStateCreate" | "DenyListStateCreate" | "BridgeStateCreate" | "BridgeCommitteeInit" | "StoreExecutionTimeObservations">[];
                     RandomnessStateUpdate: {
                         epoch: string;
                         randomness_round: string;
@@ -4432,12 +5296,24 @@ export const SenderSignedData: import("@mysten/bcs").BcsType<{
                         sub_dag_index: string;
                         commit_timestamp_ms: string;
                         consensus_commit_digest: number[];
-                        consensus_determined_version_assignments: {
+                        consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                             CancelledTransactions: [number[], [number[], string][]][];
-                            $kind: "CancelledTransactions";
-                        };
+                            CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+                        }, "CancelledTransactions" | "CancelledTransactionsV2">;
                     };
-                }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "Genesis" | "EndOfEpochTransaction">;
+                    ConsensusCommitPrologueV4: {
+                        epoch: string;
+                        round: string;
+                        sub_dag_index: string;
+                        commit_timestamp_ms: string;
+                        consensus_commit_digest: number[];
+                        consensus_determined_version_assignments: import("@mysten/bcs").EnumOutputShapeWithKeys<{
+                            CancelledTransactions: [number[], [number[], string][]][];
+                            CancelledTransactionsV2: [number[], [[number[], string], string][]][];
+                        }, "CancelledTransactions" | "CancelledTransactionsV2">;
+                        additional_state_digest: number[];
+                    };
+                }, "AuthenticatorStateUpdate" | "ChangeEpoch" | "ProgrammableTransaction" | "ConsensusCommitPrologue" | "RandomnessStateUpdate" | "ConsensusCommitPrologueV2" | "ConsensusCommitPrologueV3" | "ConsensusCommitPrologueV4" | "Genesis" | "EndOfEpochTransaction">;
                 sender: number[];
                 gas_data: {
                     payment: [number[], string, number[]][];
@@ -4670,6 +5546,14 @@ export const SenderSignedData: import("@mysten/bcs").BcsType<{
                                         initial_shared_version: string | number | bigint;
                                     };
                                     Immutable: unknown;
+                                    ConsensusV2: {
+                                        start_version: string | number | bigint;
+                                        authenticator: {
+                                            SingleOwner: Iterable<number> & {
+                                                length: number;
+                                            };
+                                        };
+                                    };
                                 }>;
                             };
                         }> & {
@@ -4733,6 +5617,35 @@ export const SenderSignedData: import("@mysten/bcs").BcsType<{
                             length: number;
                         };
                         BridgeCommitteeInit: string | number | bigint;
+                        StoreExecutionTimeObservations: {
+                            V1: Iterable<readonly [import("@mysten/bcs").EnumInputShape<{
+                                MoveEntryPoint: {
+                                    package: Iterable<number> & {
+                                        length: number;
+                                    };
+                                    module: string;
+                                    function: string;
+                                    type_arguments: Iterable<any> & {
+                                        length: number;
+                                    };
+                                };
+                                TransferObjects: unknown;
+                                SplitCoins: unknown;
+                                MergeCoins: unknown;
+                                Publish: unknown;
+                                MakeMoveVec: unknown;
+                                Upgrade: unknown;
+                            }>, Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, {
+                                secs: string | number | bigint;
+                                nanos: number;
+                            }]> & {
+                                length: number;
+                            }]> & {
+                                length: number;
+                            };
+                        };
                     }>> & {
                         length: number;
                     };
@@ -4760,7 +5673,7 @@ export const SenderSignedData: import("@mysten/bcs").BcsType<{
                         consensus_commit_digest: Iterable<number> & {
                             length: number;
                         };
-                        consensus_determined_version_assignments: {
+                        consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
                             CancelledTransactions: Iterable<readonly [Iterable<number> & {
                                 length: number;
                             }, Iterable<readonly [Iterable<number> & {
@@ -4770,6 +5683,47 @@ export const SenderSignedData: import("@mysten/bcs").BcsType<{
                             }]> & {
                                 length: number;
                             };
+                            CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, Iterable<readonly [readonly [Iterable<number> & {
+                                length: number;
+                            }, string | number | bigint], string | number | bigint]> & {
+                                length: number;
+                            }]> & {
+                                length: number;
+                            };
+                        }>;
+                    };
+                    ConsensusCommitPrologueV4: {
+                        epoch: string | number | bigint;
+                        round: string | number | bigint;
+                        sub_dag_index: string | number | bigint;
+                        commit_timestamp_ms: string | number | bigint;
+                        consensus_commit_digest: Iterable<number> & {
+                            length: number;
+                        };
+                        consensus_determined_version_assignments: import("@mysten/bcs").EnumInputShape<{
+                            CancelledTransactions: Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, string | number | bigint]> & {
+                                length: number;
+                            }]> & {
+                                length: number;
+                            };
+                            CancelledTransactionsV2: Iterable<readonly [Iterable<number> & {
+                                length: number;
+                            }, Iterable<readonly [readonly [Iterable<number> & {
+                                length: number;
+                            }, string | number | bigint], string | number | bigint]> & {
+                                length: number;
+                            }]> & {
+                                length: number;
+                            };
+                        }>;
+                        additional_state_digest: Iterable<number> & {
+                            length: number;
                         };
                     };
                 }>;
@@ -5684,7 +6638,14 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
             initial_shared_version: string;
         };
         Immutable: unknown;
-    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+        ConsensusV2: {
+            start_version: string;
+            authenticator: {
+                SingleOwner: number[];
+                $kind: "SingleOwner";
+            };
+        };
+    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
     mutated: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
         AddressOwner: number[];
         ObjectOwner: number[];
@@ -5692,7 +6653,14 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
             initial_shared_version: string;
         };
         Immutable: unknown;
-    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+        ConsensusV2: {
+            start_version: string;
+            authenticator: {
+                SingleOwner: number[];
+                $kind: "SingleOwner";
+            };
+        };
+    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
     unwrapped: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
         AddressOwner: number[];
         ObjectOwner: number[];
@@ -5700,7 +6668,14 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
             initial_shared_version: string;
         };
         Immutable: unknown;
-    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+        ConsensusV2: {
+            start_version: string;
+            authenticator: {
+                SingleOwner: number[];
+                $kind: "SingleOwner";
+            };
+        };
+    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
     deleted: [number[], string, number[]][];
     unwrapped_then_deleted: [number[], string, number[]][];
     wrapped: [number[], string, number[]][];
@@ -5711,7 +6686,14 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
             initial_shared_version: string;
         };
         Immutable: unknown;
-    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+        ConsensusV2: {
+            start_version: string;
+            authenticator: {
+                SingleOwner: number[];
+                $kind: "SingleOwner";
+            };
+        };
+    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
     events_digest: number[];
     dependencies: number[][];
 }, {
@@ -5910,6 +6892,14 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
             initial_shared_version: string | number | bigint;
         };
         Immutable: unknown;
+        ConsensusV2: {
+            start_version: string | number | bigint;
+            authenticator: {
+                SingleOwner: Iterable<number> & {
+                    length: number;
+                };
+            };
+        };
     }>]> & {
         length: number;
     };
@@ -5928,6 +6918,14 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
             initial_shared_version: string | number | bigint;
         };
         Immutable: unknown;
+        ConsensusV2: {
+            start_version: string | number | bigint;
+            authenticator: {
+                SingleOwner: Iterable<number> & {
+                    length: number;
+                };
+            };
+        };
     }>]> & {
         length: number;
     };
@@ -5946,6 +6944,14 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
             initial_shared_version: string | number | bigint;
         };
         Immutable: unknown;
+        ConsensusV2: {
+            start_version: string | number | bigint;
+            authenticator: {
+                SingleOwner: Iterable<number> & {
+                    length: number;
+                };
+            };
+        };
     }>]> & {
         length: number;
     };
@@ -5985,6 +6991,14 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
             initial_shared_version: string | number | bigint;
         };
         Immutable: unknown;
+        ConsensusV2: {
+            start_version: string | number | bigint;
+            authenticator: {
+                SingleOwner: Iterable<number> & {
+                    length: number;
+                };
+            };
+        };
     }>];
     events_digest: Iterable<number> & {
         length: number;
@@ -6004,7 +7018,14 @@ export const ObjectIn: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumO
             initial_shared_version: string;
         };
         Immutable: unknown;
-    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+        ConsensusV2: {
+            start_version: string;
+            authenticator: {
+                SingleOwner: number[];
+                $kind: "SingleOwner";
+            };
+        };
+    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
 }, "NotExist" | "Exist">, import("@mysten/bcs").EnumInputShape<{
     NotExist: unknown;
     Exist: readonly [readonly [string | number | bigint, Iterable<number> & {
@@ -6020,6 +7041,14 @@ export const ObjectIn: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumO
             initial_shared_version: string | number | bigint;
         };
         Immutable: unknown;
+        ConsensusV2: {
+            start_version: string | number | bigint;
+            authenticator: {
+                SingleOwner: Iterable<number> & {
+                    length: number;
+                };
+            };
+        };
     }>];
 }>>;
 export const ObjectOut: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutputShapeWithKeys<{
@@ -6031,7 +7060,14 @@ export const ObjectOut: import("@mysten/bcs").BcsType<import("@mysten/bcs").Enum
             initial_shared_version: string;
         };
         Immutable: unknown;
-    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+        ConsensusV2: {
+            start_version: string;
+            authenticator: {
+                SingleOwner: number[];
+                $kind: "SingleOwner";
+            };
+        };
+    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
     PackageWrite: [string, number[]];
 }, "NotExist" | "ObjectWrite" | "PackageWrite">, import("@mysten/bcs").EnumInputShape<{
     NotExist: unknown;
@@ -6048,6 +7084,14 @@ export const ObjectOut: import("@mysten/bcs").BcsType<import("@mysten/bcs").Enum
             initial_shared_version: string | number | bigint;
         };
         Immutable: unknown;
+        ConsensusV2: {
+            start_version: string | number | bigint;
+            authenticator: {
+                SingleOwner: Iterable<number> & {
+                    length: number;
+                };
+            };
+        };
     }>];
     PackageWrite: readonly [string | number | bigint, Iterable<number> & {
         length: number;
@@ -6072,7 +7116,14 @@ export const EffectsObjectChange: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
     }, "NotExist" | "Exist">;
     output_state: import("@mysten/bcs").EnumOutputShapeWithKeys<{
         NotExist: unknown;
@@ -6083,7 +7134,14 @@ export const EffectsObjectChange: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
         PackageWrite: [string, number[]];
     }, "NotExist" | "ObjectWrite" | "PackageWrite">;
     id_operation: import("@mysten/bcs").EnumOutputShapeWithKeys<{
@@ -6107,6 +7165,14 @@ export const EffectsObjectChange: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>];
     }>;
     output_state: import("@mysten/bcs").EnumInputShape<{
@@ -6124,6 +7190,14 @@ export const EffectsObjectChange: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>];
         PackageWrite: readonly [string | number | bigint, Iterable<number> & {
             length: number;
@@ -6312,7 +7386,14 @@ export const TransactionEffectsV2: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
         }, "NotExist" | "Exist">;
         output_state: import("@mysten/bcs").EnumOutputShapeWithKeys<{
             NotExist: unknown;
@@ -6323,7 +7404,14 @@ export const TransactionEffectsV2: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
             PackageWrite: [string, number[]];
         }, "NotExist" | "ObjectWrite" | "PackageWrite">;
         id_operation: import("@mysten/bcs").EnumOutputShapeWithKeys<{
@@ -6537,6 +7625,14 @@ export const TransactionEffectsV2: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>];
         }>;
         output_state: import("@mysten/bcs").EnumInputShape<{
@@ -6554,6 +7650,14 @@ export const TransactionEffectsV2: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>];
             PackageWrite: readonly [string | number | bigint, Iterable<number> & {
                 length: number;
@@ -6739,7 +7843,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
         mutated: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
             AddressOwner: number[];
             ObjectOwner: number[];
@@ -6747,7 +7858,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
         unwrapped: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
             AddressOwner: number[];
             ObjectOwner: number[];
@@ -6755,7 +7873,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
         deleted: [number[], string, number[]][];
         unwrapped_then_deleted: [number[], string, number[]][];
         wrapped: [number[], string, number[]][];
@@ -6766,7 +7891,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
         events_digest: number[];
         dependencies: number[][];
     };
@@ -6929,7 +8061,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
             }, "NotExist" | "Exist">;
             output_state: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                 NotExist: unknown;
@@ -6940,7 +8079,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                 PackageWrite: [string, number[]];
             }, "NotExist" | "ObjectWrite" | "PackageWrite">;
             id_operation: import("@mysten/bcs").EnumOutputShapeWithKeys<{
@@ -7155,6 +8301,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>]> & {
             length: number;
         };
@@ -7173,6 +8327,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>]> & {
             length: number;
         };
@@ -7191,6 +8353,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>]> & {
             length: number;
         };
@@ -7230,6 +8400,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>];
         events_digest: Iterable<number> & {
             length: number;
@@ -7437,6 +8615,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>];
             }>;
             output_state: import("@mysten/bcs").EnumInputShape<{
@@ -7454,6 +8640,14 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>];
                 PackageWrite: readonly [string | number | bigint, Iterable<number> & {
                     length: number;
@@ -7597,7 +8791,14 @@ export const Object: import("@mysten/bcs").BcsType<{
             initial_shared_version: string;
         };
         Immutable: unknown;
-    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+        ConsensusV2: {
+            start_version: string;
+            authenticator: {
+                SingleOwner: number[];
+                $kind: "SingleOwner";
+            };
+        };
+    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
     previous_transaction: number[];
     storage_rebate: string;
 }, {
@@ -7662,6 +8863,14 @@ export const Object: import("@mysten/bcs").BcsType<{
             initial_shared_version: string | number | bigint;
         };
         Immutable: unknown;
+        ConsensusV2: {
+            start_version: string | number | bigint;
+            authenticator: {
+                SingleOwner: Iterable<number> & {
+                    length: number;
+                };
+            };
+        };
     }>;
     previous_transaction: Iterable<number> & {
         length: number;
@@ -7828,7 +9037,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
             mutated: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
                 AddressOwner: number[];
                 ObjectOwner: number[];
@@ -7836,7 +9052,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
             unwrapped: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
                 AddressOwner: number[];
                 ObjectOwner: number[];
@@ -7844,7 +9067,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
             deleted: [number[], string, number[]][];
             unwrapped_then_deleted: [number[], string, number[]][];
             wrapped: [number[], string, number[]][];
@@ -7855,7 +9085,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
             events_digest: number[];
             dependencies: number[][];
         };
@@ -8018,7 +9255,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string;
                         };
                         Immutable: unknown;
-                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                        ConsensusV2: {
+                            start_version: string;
+                            authenticator: {
+                                SingleOwner: number[];
+                                $kind: "SingleOwner";
+                            };
+                        };
+                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                 }, "NotExist" | "Exist">;
                 output_state: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                     NotExist: unknown;
@@ -8029,7 +9273,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string;
                         };
                         Immutable: unknown;
-                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                        ConsensusV2: {
+                            start_version: string;
+                            authenticator: {
+                                SingleOwner: number[];
+                                $kind: "SingleOwner";
+                            };
+                        };
+                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                     PackageWrite: [string, number[]];
                 }, "NotExist" | "ObjectWrite" | "PackageWrite">;
                 id_operation: import("@mysten/bcs").EnumOutputShapeWithKeys<{
@@ -8102,7 +9353,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
         previous_transaction: number[];
         storage_rebate: string;
     }[];
@@ -8146,7 +9404,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string;
             };
             Immutable: unknown;
-        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+            ConsensusV2: {
+                start_version: string;
+                authenticator: {
+                    SingleOwner: number[];
+                    $kind: "SingleOwner";
+                };
+            };
+        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
         previous_transaction: number[];
         storage_rebate: string;
     }[];
@@ -8352,6 +9617,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>]> & {
                 length: number;
             };
@@ -8370,6 +9643,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>]> & {
                 length: number;
             };
@@ -8388,6 +9669,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>]> & {
                 length: number;
             };
@@ -8427,6 +9716,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>];
             events_digest: Iterable<number> & {
                 length: number;
@@ -8634,6 +9931,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string | number | bigint;
                         };
                         Immutable: unknown;
+                        ConsensusV2: {
+                            start_version: string | number | bigint;
+                            authenticator: {
+                                SingleOwner: Iterable<number> & {
+                                    length: number;
+                                };
+                            };
+                        };
                     }>];
                 }>;
                 output_state: import("@mysten/bcs").EnumInputShape<{
@@ -8651,6 +9956,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string | number | bigint;
                         };
                         Immutable: unknown;
+                        ConsensusV2: {
+                            start_version: string | number | bigint;
+                            authenticator: {
+                                SingleOwner: Iterable<number> & {
+                                    length: number;
+                                };
+                            };
+                        };
                     }>];
                     PackageWrite: readonly [string | number | bigint, Iterable<number> & {
                         length: number;
@@ -8770,6 +10083,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>;
         previous_transaction: Iterable<number> & {
             length: number;
@@ -8840,6 +10161,14 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                 initial_shared_version: string | number | bigint;
             };
             Immutable: unknown;
+            ConsensusV2: {
+                start_version: string | number | bigint;
+                authenticator: {
+                    SingleOwner: Iterable<number> & {
+                        length: number;
+                    };
+                };
+            };
         }>;
         previous_transaction: Iterable<number> & {
             length: number;
@@ -9024,7 +10353,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
                 mutated: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
                     AddressOwner: number[];
                     ObjectOwner: number[];
@@ -9032,7 +10368,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
                 unwrapped: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
                     AddressOwner: number[];
                     ObjectOwner: number[];
@@ -9040,7 +10383,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
                 deleted: [number[], string, number[]][];
                 unwrapped_then_deleted: [number[], string, number[]][];
                 wrapped: [number[], string, number[]][];
@@ -9051,7 +10401,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                 events_digest: number[];
                 dependencies: number[][];
             };
@@ -9214,7 +10571,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string;
                             };
                             Immutable: unknown;
-                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                            ConsensusV2: {
+                                start_version: string;
+                                authenticator: {
+                                    SingleOwner: number[];
+                                    $kind: "SingleOwner";
+                                };
+                            };
+                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                     }, "NotExist" | "Exist">;
                     output_state: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                         NotExist: unknown;
@@ -9225,7 +10589,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string;
                             };
                             Immutable: unknown;
-                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                            ConsensusV2: {
+                                start_version: string;
+                                authenticator: {
+                                    SingleOwner: number[];
+                                    $kind: "SingleOwner";
+                                };
+                            };
+                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                         PackageWrite: [string, number[]];
                     }, "NotExist" | "ObjectWrite" | "PackageWrite">;
                     id_operation: import("@mysten/bcs").EnumOutputShapeWithKeys<{
@@ -9298,7 +10669,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
             previous_transaction: number[];
             storage_rebate: string;
         }[];
@@ -9342,7 +10720,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">;
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">;
             previous_transaction: number[];
             storage_rebate: string;
         }[];
@@ -9575,6 +10960,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>]> & {
                     length: number;
                 };
@@ -9593,6 +10986,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>]> & {
                     length: number;
                 };
@@ -9611,6 +11012,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>]> & {
                     length: number;
                 };
@@ -9650,6 +11059,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>];
                 events_digest: Iterable<number> & {
                     length: number;
@@ -9857,6 +11274,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string | number | bigint;
                             };
                             Immutable: unknown;
+                            ConsensusV2: {
+                                start_version: string | number | bigint;
+                                authenticator: {
+                                    SingleOwner: Iterable<number> & {
+                                        length: number;
+                                    };
+                                };
+                            };
                         }>];
                     }>;
                     output_state: import("@mysten/bcs").EnumInputShape<{
@@ -9874,6 +11299,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string | number | bigint;
                             };
                             Immutable: unknown;
+                            ConsensusV2: {
+                                start_version: string | number | bigint;
+                                authenticator: {
+                                    SingleOwner: Iterable<number> & {
+                                        length: number;
+                                    };
+                                };
+                            };
                         }>];
                         PackageWrite: readonly [string | number | bigint, Iterable<number> & {
                             length: number;
@@ -9993,6 +11426,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>;
             previous_transaction: Iterable<number> & {
                 length: number;
@@ -10063,6 +11504,14 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>;
             previous_transaction: Iterable<number> & {
                 length: number;
@@ -10266,7 +11715,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
             mutated: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
                 AddressOwner: number[];
                 ObjectOwner: number[];
@@ -10274,7 +11730,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
             unwrapped: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
                 AddressOwner: number[];
                 ObjectOwner: number[];
@@ -10282,7 +11745,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
             deleted: [number[], string, number[]][];
             unwrapped_then_deleted: [number[], string, number[]][];
             wrapped: [number[], string, number[]][];
@@ -10293,7 +11763,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string;
                 };
                 Immutable: unknown;
-            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                ConsensusV2: {
+                    start_version: string;
+                    authenticator: {
+                        SingleOwner: number[];
+                        $kind: "SingleOwner";
+                    };
+                };
+            }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
             events_digest: number[];
             dependencies: number[][];
         };
@@ -10456,7 +11933,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string;
                         };
                         Immutable: unknown;
-                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                        ConsensusV2: {
+                            start_version: string;
+                            authenticator: {
+                                SingleOwner: number[];
+                                $kind: "SingleOwner";
+                            };
+                        };
+                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                 }, "NotExist" | "Exist">;
                 output_state: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                     NotExist: unknown;
@@ -10467,7 +11951,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string;
                         };
                         Immutable: unknown;
-                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                        ConsensusV2: {
+                            start_version: string;
+                            authenticator: {
+                                SingleOwner: number[];
+                                $kind: "SingleOwner";
+                            };
+                        };
+                    }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                     PackageWrite: [string, number[]];
                 }, "NotExist" | "ObjectWrite" | "PackageWrite">;
                 id_operation: import("@mysten/bcs").EnumOutputShapeWithKeys<{
@@ -10688,6 +12179,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>]> & {
                 length: number;
             };
@@ -10706,6 +12205,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>]> & {
                 length: number;
             };
@@ -10724,6 +12231,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>]> & {
                 length: number;
             };
@@ -10763,6 +12278,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                     initial_shared_version: string | number | bigint;
                 };
                 Immutable: unknown;
+                ConsensusV2: {
+                    start_version: string | number | bigint;
+                    authenticator: {
+                        SingleOwner: Iterable<number> & {
+                            length: number;
+                        };
+                    };
+                };
             }>];
             events_digest: Iterable<number> & {
                 length: number;
@@ -10970,6 +12493,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string | number | bigint;
                         };
                         Immutable: unknown;
+                        ConsensusV2: {
+                            start_version: string | number | bigint;
+                            authenticator: {
+                                SingleOwner: Iterable<number> & {
+                                    length: number;
+                                };
+                            };
+                        };
                     }>];
                 }>;
                 output_state: import("@mysten/bcs").EnumInputShape<{
@@ -10987,6 +12518,14 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                             initial_shared_version: string | number | bigint;
                         };
                         Immutable: unknown;
+                        ConsensusV2: {
+                            start_version: string | number | bigint;
+                            authenticator: {
+                                SingleOwner: Iterable<number> & {
+                                    length: number;
+                                };
+                            };
+                        };
                     }>];
                     PackageWrite: readonly [string | number | bigint, Iterable<number> & {
                         length: number;
@@ -11180,7 +12719,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
                 mutated: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
                     AddressOwner: number[];
                     ObjectOwner: number[];
@@ -11188,7 +12734,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
                 unwrapped: [[number[], string, number[]], import("@mysten/bcs").EnumOutputShapeWithKeys<{
                     AddressOwner: number[];
                     ObjectOwner: number[];
@@ -11196,7 +12749,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">][];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">][];
                 deleted: [number[], string, number[]][];
                 unwrapped_then_deleted: [number[], string, number[]][];
                 wrapped: [number[], string, number[]][];
@@ -11207,7 +12767,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string;
                     };
                     Immutable: unknown;
-                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                    ConsensusV2: {
+                        start_version: string;
+                        authenticator: {
+                            SingleOwner: number[];
+                            $kind: "SingleOwner";
+                        };
+                    };
+                }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                 events_digest: number[];
                 dependencies: number[][];
             };
@@ -11370,7 +12937,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string;
                             };
                             Immutable: unknown;
-                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                            ConsensusV2: {
+                                start_version: string;
+                                authenticator: {
+                                    SingleOwner: number[];
+                                    $kind: "SingleOwner";
+                                };
+                            };
+                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                     }, "NotExist" | "Exist">;
                     output_state: import("@mysten/bcs").EnumOutputShapeWithKeys<{
                         NotExist: unknown;
@@ -11381,7 +12955,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string;
                             };
                             Immutable: unknown;
-                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable">];
+                            ConsensusV2: {
+                                start_version: string;
+                                authenticator: {
+                                    SingleOwner: number[];
+                                    $kind: "SingleOwner";
+                                };
+                            };
+                        }, "AddressOwner" | "ObjectOwner" | "Shared" | "Immutable" | "ConsensusV2">];
                         PackageWrite: [string, number[]];
                     }, "NotExist" | "ObjectWrite" | "PackageWrite">;
                     id_operation: import("@mysten/bcs").EnumOutputShapeWithKeys<{
@@ -11605,6 +13186,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>]> & {
                     length: number;
                 };
@@ -11623,6 +13212,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>]> & {
                     length: number;
                 };
@@ -11641,6 +13238,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>]> & {
                     length: number;
                 };
@@ -11680,6 +13285,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                         initial_shared_version: string | number | bigint;
                     };
                     Immutable: unknown;
+                    ConsensusV2: {
+                        start_version: string | number | bigint;
+                        authenticator: {
+                            SingleOwner: Iterable<number> & {
+                                length: number;
+                            };
+                        };
+                    };
                 }>];
                 events_digest: Iterable<number> & {
                     length: number;
@@ -11887,6 +13500,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string | number | bigint;
                             };
                             Immutable: unknown;
+                            ConsensusV2: {
+                                start_version: string | number | bigint;
+                                authenticator: {
+                                    SingleOwner: Iterable<number> & {
+                                        length: number;
+                                    };
+                                };
+                            };
                         }>];
                     }>;
                     output_state: import("@mysten/bcs").EnumInputShape<{
@@ -11904,6 +13525,14 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                                 initial_shared_version: string | number | bigint;
                             };
                             Immutable: unknown;
+                            ConsensusV2: {
+                                start_version: string | number | bigint;
+                                authenticator: {
+                                    SingleOwner: Iterable<number> & {
+                                        length: number;
+                                    };
+                                };
+                            };
                         }>];
                         PackageWrite: readonly [string | number | bigint, Iterable<number> & {
                             length: number;
