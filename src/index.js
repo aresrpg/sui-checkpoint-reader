@@ -590,7 +590,6 @@ export function premap_transaction(transaction) {
     package_id: to_address,
     consensus_commit_digest: to_address,
     ObjectWrite: ([key, value]) => {
-      console.dir({ key, type: typeof key }, { depth: Infinity })
       const bytes = key instanceof Uint8Array ? key : new Uint8Array(key)
       return { [toBase58(bytes)]: value }
     },
