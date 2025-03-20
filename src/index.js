@@ -60,6 +60,8 @@ function parse_content(struct, { contents, known_types }) {
             const nested = find_nested_bcs(rest.Vector)
             return nested ? bcs.vector(nested) : null
           }
+          if (rest.Vector.$kind.toLowerCase() === 'address')
+            return bcs.vector(SuiAddress)
           return bcs.vector(bcs[rest.Vector.$kind.toLowerCase()]())
         default:
           return bcs[$kind.toLowerCase()]()
