@@ -53,9 +53,9 @@ function parse_content(struct, { contents, known_types }) {
           return SuiAddress
         case 'vector':
           if (
-            rest.Vector.$kind === 'struct' ||
-            rest.Vector.$kind === 'address' ||
-            rest.Vector.$kind === 'vector'
+            rest.Vector.$kind.toLowerCase() === 'struct' ||
+            rest.Vector.$kind.toLowerCase() === 'address' ||
+            rest.Vector.$kind.toLowerCase() === 'vector'
           ) {
             const nested = find_nested_bcs(rest.Vector)
             return nested ? bcs.vector(nested) : null
