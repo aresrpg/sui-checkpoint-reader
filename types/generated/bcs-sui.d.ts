@@ -5827,7 +5827,8 @@ export const CommandArgumentError: import("@mysten/bcs").BcsType<import("@mysten
     InvalidObjectByValue: unknown;
     InvalidObjectByMutRef: unknown;
     SharedObjectOperationNotAllowed: unknown;
-}, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">, import("@mysten/bcs").EnumInputShape<{
+    InvalidArgumentArity: unknown;
+}, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">, import("@mysten/bcs").EnumInputShape<{
     TypeMismatch: unknown;
     InvalidBCSBytes: unknown;
     InvalidUsageOfPureArg: unknown;
@@ -5847,6 +5848,7 @@ export const CommandArgumentError: import("@mysten/bcs").BcsType<import("@mysten
     InvalidObjectByValue: unknown;
     InvalidObjectByMutRef: unknown;
     SharedObjectOperationNotAllowed: unknown;
+    InvalidArgumentArity: unknown;
 }>>;
 export const TypeArgumentError: import("@mysten/bcs").BcsType<import("@mysten/bcs").EnumOutputShapeWithKeys<{
     TypeNotFound: unknown;
@@ -5973,7 +5975,8 @@ export const ExecutionFailureStatus: import("@mysten/bcs").BcsType<import("@myst
             InvalidObjectByValue: unknown;
             InvalidObjectByMutRef: unknown;
             SharedObjectOperationNotAllowed: unknown;
-        }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+            InvalidArgumentArity: unknown;
+        }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
     };
     TypeArgumentError: {
         argument_idx: number;
@@ -6108,6 +6111,7 @@ export const ExecutionFailureStatus: import("@mysten/bcs").BcsType<import("@myst
             InvalidObjectByValue: unknown;
             InvalidObjectByMutRef: unknown;
             SharedObjectOperationNotAllowed: unknown;
+            InvalidArgumentArity: unknown;
         }>;
     };
     TypeArgumentError: {
@@ -6257,7 +6261,8 @@ export const ExecutionStatus: import("@mysten/bcs").BcsType<import("@mysten/bcs"
                     InvalidObjectByValue: unknown;
                     InvalidObjectByMutRef: unknown;
                     SharedObjectOperationNotAllowed: unknown;
-                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                    InvalidArgumentArity: unknown;
+                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
             };
             TypeArgumentError: {
                 argument_idx: number;
@@ -6398,6 +6403,7 @@ export const ExecutionStatus: import("@mysten/bcs").BcsType<import("@mysten/bcs"
                     InvalidObjectByValue: unknown;
                     InvalidObjectByMutRef: unknown;
                     SharedObjectOperationNotAllowed: unknown;
+                    InvalidArgumentArity: unknown;
                 }>;
             };
             TypeArgumentError: {
@@ -6554,7 +6560,8 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
                         InvalidObjectByValue: unknown;
                         InvalidObjectByMutRef: unknown;
                         SharedObjectOperationNotAllowed: unknown;
-                    }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                        InvalidArgumentArity: unknown;
+                    }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                 };
                 TypeArgumentError: {
                     argument_idx: number;
@@ -6772,6 +6779,7 @@ export const TransactionEffectsV1: import("@mysten/bcs").BcsType<{
                         InvalidObjectByValue: unknown;
                         InvalidObjectByMutRef: unknown;
                         SharedObjectOperationNotAllowed: unknown;
+                        InvalidArgumentArity: unknown;
                     }>;
                 };
                 TypeArgumentError: {
@@ -7297,7 +7305,8 @@ export const TransactionEffectsV2: import("@mysten/bcs").BcsType<{
                         InvalidObjectByValue: unknown;
                         InvalidObjectByMutRef: unknown;
                         SharedObjectOperationNotAllowed: unknown;
-                    }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                        InvalidArgumentArity: unknown;
+                    }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                 };
                 TypeArgumentError: {
                     argument_idx: number;
@@ -7504,6 +7513,7 @@ export const TransactionEffectsV2: import("@mysten/bcs").BcsType<{
                         InvalidObjectByValue: unknown;
                         InvalidObjectByMutRef: unknown;
                         SharedObjectOperationNotAllowed: unknown;
+                        InvalidArgumentArity: unknown;
                     }>;
                 };
                 TypeArgumentError: {
@@ -7759,7 +7769,8 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                             InvalidObjectByValue: unknown;
                             InvalidObjectByMutRef: unknown;
                             SharedObjectOperationNotAllowed: unknown;
-                        }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                            InvalidArgumentArity: unknown;
+                        }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                     };
                     TypeArgumentError: {
                         argument_idx: number;
@@ -7972,7 +7983,8 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                             InvalidObjectByValue: unknown;
                             InvalidObjectByMutRef: unknown;
                             SharedObjectOperationNotAllowed: unknown;
-                        }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                            InvalidArgumentArity: unknown;
+                        }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                     };
                     TypeArgumentError: {
                         argument_idx: number;
@@ -8181,6 +8193,7 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                             InvalidObjectByValue: unknown;
                             InvalidObjectByMutRef: unknown;
                             SharedObjectOperationNotAllowed: unknown;
+                            InvalidArgumentArity: unknown;
                         }>;
                     };
                     TypeArgumentError: {
@@ -8494,6 +8507,7 @@ export const TransactionEffects: import("@mysten/bcs").BcsType<import("@mysten/b
                             InvalidObjectByValue: unknown;
                             InvalidObjectByMutRef: unknown;
                             SharedObjectOperationNotAllowed: unknown;
+                            InvalidArgumentArity: unknown;
                         }>;
                     };
                     TypeArgumentError: {
@@ -8953,7 +8967,8 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                                 InvalidObjectByValue: unknown;
                                 InvalidObjectByMutRef: unknown;
                                 SharedObjectOperationNotAllowed: unknown;
-                            }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                                InvalidArgumentArity: unknown;
+                            }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                         };
                         TypeArgumentError: {
                             argument_idx: number;
@@ -9166,7 +9181,8 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                                 InvalidObjectByValue: unknown;
                                 InvalidObjectByMutRef: unknown;
                                 SharedObjectOperationNotAllowed: unknown;
-                            }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                                InvalidArgumentArity: unknown;
+                            }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                         };
                         TypeArgumentError: {
                             argument_idx: number;
@@ -9497,6 +9513,7 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                                 InvalidObjectByValue: unknown;
                                 InvalidObjectByMutRef: unknown;
                                 SharedObjectOperationNotAllowed: unknown;
+                                InvalidArgumentArity: unknown;
                             }>;
                         };
                         TypeArgumentError: {
@@ -9810,6 +9827,7 @@ export const CheckpointTransaction: import("@mysten/bcs").BcsType<{
                                 InvalidObjectByValue: unknown;
                                 InvalidObjectByMutRef: unknown;
                                 SharedObjectOperationNotAllowed: unknown;
+                                InvalidArgumentArity: unknown;
                             }>;
                         };
                         TypeArgumentError: {
@@ -10269,7 +10287,8 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                                     InvalidObjectByValue: unknown;
                                     InvalidObjectByMutRef: unknown;
                                     SharedObjectOperationNotAllowed: unknown;
-                                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                                    InvalidArgumentArity: unknown;
+                                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                             };
                             TypeArgumentError: {
                                 argument_idx: number;
@@ -10482,7 +10501,8 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                                     InvalidObjectByValue: unknown;
                                     InvalidObjectByMutRef: unknown;
                                     SharedObjectOperationNotAllowed: unknown;
-                                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                                    InvalidArgumentArity: unknown;
+                                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                             };
                             TypeArgumentError: {
                                 argument_idx: number;
@@ -10840,6 +10860,7 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                                     InvalidObjectByValue: unknown;
                                     InvalidObjectByMutRef: unknown;
                                     SharedObjectOperationNotAllowed: unknown;
+                                    InvalidArgumentArity: unknown;
                                 }>;
                             };
                             TypeArgumentError: {
@@ -11153,6 +11174,7 @@ export const CheckpointData: import("@mysten/bcs").BcsType<{
                                     InvalidObjectByValue: unknown;
                                     InvalidObjectByMutRef: unknown;
                                     SharedObjectOperationNotAllowed: unknown;
+                                    InvalidArgumentArity: unknown;
                                 }>;
                             };
                             TypeArgumentError: {
@@ -11631,7 +11653,8 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                                 InvalidObjectByValue: unknown;
                                 InvalidObjectByMutRef: unknown;
                                 SharedObjectOperationNotAllowed: unknown;
-                            }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                                InvalidArgumentArity: unknown;
+                            }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                         };
                         TypeArgumentError: {
                             argument_idx: number;
@@ -11844,7 +11867,8 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                                 InvalidObjectByValue: unknown;
                                 InvalidObjectByMutRef: unknown;
                                 SharedObjectOperationNotAllowed: unknown;
-                            }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                                InvalidArgumentArity: unknown;
+                            }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                         };
                         TypeArgumentError: {
                             argument_idx: number;
@@ -12059,6 +12083,7 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                                 InvalidObjectByValue: unknown;
                                 InvalidObjectByMutRef: unknown;
                                 SharedObjectOperationNotAllowed: unknown;
+                                InvalidArgumentArity: unknown;
                             }>;
                         };
                         TypeArgumentError: {
@@ -12372,6 +12397,7 @@ export const ExecutionData: import("@mysten/bcs").BcsType<{
                                 InvalidObjectByValue: unknown;
                                 InvalidObjectByMutRef: unknown;
                                 SharedObjectOperationNotAllowed: unknown;
+                                InvalidArgumentArity: unknown;
                             }>;
                         };
                         TypeArgumentError: {
@@ -12635,7 +12661,8 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                                     InvalidObjectByValue: unknown;
                                     InvalidObjectByMutRef: unknown;
                                     SharedObjectOperationNotAllowed: unknown;
-                                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                                    InvalidArgumentArity: unknown;
+                                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                             };
                             TypeArgumentError: {
                                 argument_idx: number;
@@ -12848,7 +12875,8 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                                     InvalidObjectByValue: unknown;
                                     InvalidObjectByMutRef: unknown;
                                     SharedObjectOperationNotAllowed: unknown;
-                                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed">;
+                                    InvalidArgumentArity: unknown;
+                                }, "TypeMismatch" | "InvalidBCSBytes" | "InvalidUsageOfPureArg" | "InvalidArgumentToPrivateEntryFunction" | "IndexOutOfBounds" | "SecondaryIndexOutOfBounds" | "InvalidResultArity" | "InvalidGasCoinUsage" | "InvalidValueUsage" | "InvalidObjectByValue" | "InvalidObjectByMutRef" | "SharedObjectOperationNotAllowed" | "InvalidArgumentArity">;
                             };
                             TypeArgumentError: {
                                 argument_idx: number;
@@ -13066,6 +13094,7 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                                     InvalidObjectByValue: unknown;
                                     InvalidObjectByMutRef: unknown;
                                     SharedObjectOperationNotAllowed: unknown;
+                                    InvalidArgumentArity: unknown;
                                 }>;
                             };
                             TypeArgumentError: {
@@ -13379,6 +13408,7 @@ export const FullCheckpointContents: import("@mysten/bcs").BcsType<{
                                     InvalidObjectByValue: unknown;
                                     InvalidObjectByMutRef: unknown;
                                     SharedObjectOperationNotAllowed: unknown;
+                                    InvalidArgumentArity: unknown;
                                 }>;
                             };
                             TypeArgumentError: {
