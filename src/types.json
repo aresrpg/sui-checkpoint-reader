@@ -513,6 +513,9 @@
       },
       "11": {
         "SharedObjectOperationNotAllowed": "UNIT"
+      },
+      "12": {
+        "InvalidArgumentArity": "UNIT"
       }
     }
   },

@@ -422,6 +422,7 @@ export const CommandArgumentError = bcs.enum('CommandArgumentError', {
   InvalidObjectByValue: null,
   InvalidObjectByMutRef: null,
   SharedObjectOperationNotAllowed: null,
+  InvalidArgumentArity: null,
 })
 export const TypeArgumentError = bcs.enum('TypeArgumentError', {
   TypeNotFound: null,
